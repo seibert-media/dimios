@@ -1,0 +1,5 @@
+FROM tianon/true
+MAINTAINER Benjamin Borbe <bborbe@rocketnews.de>
+COPY k8s-deploy /
+COPY files/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+ENTRYPOINT ["/k8s-deploy"]
