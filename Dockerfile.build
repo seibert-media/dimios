@@ -1,7 +1,7 @@
 FROM golang:1.10
 MAINTAINER Benjamin Borbe <bborbe@rocketnews.de>
 COPY Makefile /
-COPY . /go/src/github.com/bborbe/kubernetes_deploy
+COPY . /go/src/github.com/bborbe/k8s_deploy
 WORKDIR /
 RUN make buildgo
 CMD ["/bin/bash"]

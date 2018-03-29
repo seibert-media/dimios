@@ -34,7 +34,7 @@ format: goimports
 	find . -type f -name '*.go' -not -path './vendor/*' -exec goimports -w "{}" +
 
 buildgo:
-	CGO_ENABLED=0 GOOS=linux go build -ldflags "-s" -a -installsuffix cgo -o k8s-deploy ./go/src/github.com/bborbe/kubernetes_deploy/bin/k8s-deploy
+	CGO_ENABLED=0 GOOS=linux go build -ldflags "-s" -a -installsuffix cgo -o k8s-deploy ./go/src/github.com/bborbe/k8s_deploy/cmd/k8s-deploy
 
 build:
 	docker build --no-cache --rm=true -t $(REGISTRY)/$(IMAGE)-build:$(VERSION) -f ./Dockerfile.build .
