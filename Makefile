@@ -1,8 +1,7 @@
 IMAGE ?= bborbe/k8s-deploy
 REGISTRY ?= docker.io
-
 ifeq ($(VERSION),)
-	VERSION = $(shell git fetch --tags; git describe --tags `git rev-list --tags --max-count=1`)
+	VERSION := $(shell git describe --tags `git rev-list --tags --max-count=1`)
 endif
 
 all: test install run
