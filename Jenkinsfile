@@ -12,7 +12,7 @@ podTemplate(
 			resourceRequestCpu: '500m',
 			resourceRequestMemory: '500Mi',
 			resourceLimitCpu: '2000m',
-			resourceLimitMemory: '500Mi',
+			resourceLimitMemory: '1000Mi',
 		),
 		containerTemplate(
 			name: 'build-docker',
