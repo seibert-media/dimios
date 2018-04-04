@@ -13,6 +13,7 @@ prepare:
 	go get -u github.com/kisielk/errcheck
 	go get -u github.com/golang/dep/cmd/dep
 	go get -u github.com/Masterminds/glide
+	go get -u github.com/bborbe/docker_utils/bin/docker_remote_tag_exists
 
 glide:
 	go get github.com/Masterminds/glide
@@ -52,3 +53,20 @@ upload:
 
 clean:
 	docker rmi $(REGISTRY)/$(IMAGE):$(VERSION) || true
+
+docker_remote_tag_exists:
+	@go get github.com/bborbe/docker_utils/bin/docker_remote_tag_exists
+
+trigger: docker_remote_tag_exists
+	@exists=`docker_remote_tag_exists \
+		-registry=${REGISTRY} \
+		-repository="${IMAGE}" \
+		-credentialsfromfile \
+		-tag="${VERSION}" \
+		-alsologtostderr \
+		-v=0`; \
+	trigger="build"; \
+	if [ "$${exists}" = "true" ]; then \
+		trigger="skip"; \
+	fi; \
+	echo $${trigger}
