@@ -53,6 +53,9 @@ upload:
 clean:
 	docker rmi $(REGISTRY)/$(IMAGE):$(VERSION) || true
 
+version:
+	@echo $(VERSION)
+
 docker_remote_tag_exists:
 	@go get github.com/bborbe/docker_utils/bin/docker_remote_tag_exists
 
