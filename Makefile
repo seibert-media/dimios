@@ -7,15 +7,18 @@ endif
 
 all: test install run
 
+prepare:
+	go get -u golang.org/x/tools/cmd/goimports
+	go get -u github.com/golang/lint/golint
+	go get -u github.com/kisielk/errcheck
+	go get -u github.com/golang/dep/cmd/dep
+	go get -u github.com/Masterminds/glide
+
 glide:
 	go get github.com/Masterminds/glide
 
 test: glide
 	GO15VENDOREXPERIMENT=1 go test -cover `glide novendor`
-
-dep: glide
-	glide up
-	glide install
 
 install:
 	GOBIN=$(GOPATH)/bin GO15VENDOREXPERIMENT=1 go install bin/k8s-deploy/*.go
@@ -49,4 +52,3 @@ upload:
 
 clean:
 	docker rmi $(REGISTRY)/$(IMAGE):$(VERSION) || true
-

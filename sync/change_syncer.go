@@ -14,14 +14,14 @@ type applyChanges func(context.Context, <-chan change.Change) error
 type getChanges func(context.Context, chan<- change.Change) error
 
 type Syncer interface {
-	Sync(ctx context.Context) error
+	SyncChanges(ctx context.Context) error
 }
 type syncer struct {
 	getChanges   getChanges
 	applyChanges applyChanges
 }
 
-func NewSyncer(
+func New(
 	getChanges getChanges,
 	applyChanges applyChanges,
 ) Syncer {
@@ -32,7 +32,7 @@ func NewSyncer(
 }
 
 // SyncChanges versions
-func (c *syncer) Sync(ctx context.Context) error {
+func (c *syncer) SyncChanges(ctx context.Context) error {
 	glog.V(1).Info("sync changes started")
 	defer glog.V(1).Info("sync changes finished")
 	versionChannel := make(chan change.Change, channelSize)

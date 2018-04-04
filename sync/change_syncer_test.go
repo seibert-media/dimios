@@ -6,8 +6,8 @@ import (
 	. "github.com/bborbe/assert"
 )
 
-func TestNewSyncer(t *testing.T) {
-	a := NewSyncer(nil, nil)
+func TestNew(t *testing.T) {
+	a := New(nil, nil)
 	if err := AssertThat(a, NotNilValue()); err != nil {
 		t.Fatal(err)
 	}
