@@ -1,4 +1,4 @@
-IMAGE ?= bborbe/kubernetes-deploy
+IMAGE ?= bborbe/k8s-deploy
 REGISTRY ?= docker.io
 
 ifeq ($(VERSION),)
