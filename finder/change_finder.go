@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/bborbe/run"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"github.com/seibert-media/k8s-deploy/change"
@@ -16,16 +17,28 @@ import (
 type Finder struct {
 	FileProvider   k8s.Provider
 	RemoveProvider k8s.Provider
-	Namespace      k8s.Namespace
+	Namespaces     []k8s.Namespace
 }
+
+type changeNamespace func(context.Context) error
 
 func (f *Finder) Changes(ctx context.Context, c chan<- change.Change) error {
 	defer close(c)
-	fileObjects, err := f.FileProvider.GetObjects(f.Namespace)
+	var list []run.RunFunc
+	for _, namespace := range f.Namespaces {
+		list = append(list, func(ctx context.Context) error {
+			return f.changesForNamespace(ctx, c, namespace)
+		})
+	}
+	return run.CancelOnFirstError(ctx, list...)
+}
+
+func (f *Finder) changesForNamespace(ctx context.Context, c chan<- change.Change, namespace k8s.Namespace) error {
+	fileObjects, err := f.FileProvider.GetObjects(namespace)
 	if err != nil {
 		return errors.Wrap(err, "get file objects failed")
 	}
-	remoteObjects, err := f.RemoveProvider.GetObjects(f.Namespace)
+	remoteObjects, err := f.RemoveProvider.GetObjects(namespace)
 	if err != nil {
 		return errors.Wrap(err, "get remote objects failed")
 	}
