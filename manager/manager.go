@@ -17,7 +17,6 @@ import (
 	"github.com/bborbe/teamvault_utils/parser"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -81,11 +80,7 @@ func (m *Manager) Run(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("create clientConfig failed: %v", err)
 	}
-	clientSet, err := kubernetes.NewForConfig(clientConfig)
-	if err != nil {
-		return fmt.Errorf("create clientSet failed: %v", err)
-	}
-	removeProvider := remote_provider.New(clientSet)
+	removeProvider := remote_provider.New(clientConfig)
 	changeFinder := &finder.Finder{
 		FileProvider:   fileProvider,
 		RemoveProvider: removeProvider,
