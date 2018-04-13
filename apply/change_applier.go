@@ -71,10 +71,10 @@ func (c *Applier) apply(ctx context.Context, change change.Change) error {
 	}
 
 	if change.Deleted {
-		glog.V(3).Infof("delete %s", obj.GetName())
-		if err := resource.Delete(obj.GetName(), &k8s_metav1.DeleteOptions{}); err != nil {
-			return errors.Wrap(err, "unable to delete object")
-		}
+		glog.Warningf("delete %s - %s", obj.GetKind(), obj.GetName())
+		//if err := resource.Delete(obj.GetName(), &k8s_metav1.DeleteOptions{}); err != nil {
+		//	return errors.Wrap(err, "unable to delete object")
+		//}
 		return nil
 	}
 	var result *k8s_unstructured.Unstructured

@@ -1,16 +1,19 @@
 package remote_provider
 
 import (
+	"strings"
+
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"github.com/seibert-media/k8s-deploy/k8s"
+	k8s_meta "k8s.io/apimachinery/pkg/api/meta"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8s_unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
 	k8s_schema "k8s.io/apimachinery/pkg/runtime/schema"
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
 	k8s_restclient "k8s.io/client-go/rest"
-	k8s_meta "k8s.io/apimachinery/pkg/api/meta"
 )
 
 type provider struct {
@@ -54,9 +57,9 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 			}
 			handeled[resource.Kind] = struct{}{}
 
-			if resource.Kind != "Deployment" {
-				continue
-			}
+			//if resource.Kind != "Deployment" {
+			//	continue
+			//}
 
 			groupVersion, err := k8s_schema.ParseGroupVersion(list.GroupVersion)
 			if err != nil {
@@ -85,12 +88,73 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 				glog.V(4).Infof("extract items failed: %v", err)
 				continue
 			}
+
 			for _, item := range items {
-				glog.V(2).Infof("found api object %s", k8s.ObjectToString(item))
-				result = append(result, item)
+				glog.V(6).Infof("found api object %s", k8s.ObjectToString(item))
+				is, err := IsManaged(namespace, item)
+				if err != nil {
+					return nil, errors.Wrap(err, "failed to determine managed state")
+				}
+				if is {
+					result = append(result, item)
+				}
 			}
 		}
 	}
 	glog.V(1).Infof("read api completed. found %d objects in namespace %s", len(result), namespace)
 	return result, nil
+}
+
+// IsManaged by k8s-deploy
+func IsManaged(namespace k8s.Namespace, object k8s_runtime.Object) (bool, error) {
+	u, err := k8s_runtime.DefaultUnstructuredConverter.ToUnstructured(object)
+	if err != nil {
+		return false, errors.New("unable to convert object to k8s_unstructured")
+	}
+	obj := &k8s_unstructured.Unstructured{
+		Object: u,
+	}
+
+	if obj.GetKind() == "Namespace" {
+		if obj.GetName() != namespace.String() {
+			return false, nil
+		}
+	}
+
+	if strings.HasPrefix(obj.GetKind(), "ClusterRole") {
+		if obj.GetName() == "system:kube-dns-autoscaler" {
+			return false, nil
+		}
+	}
+
+	for _, kind := range []string{"Node", "CertificateSigningRequest", "Event", "ServiceAccount"} {
+		if obj.GetKind() == kind {
+			return false, nil
+		}
+	}
+
+	if len(obj.GetOwnerReferences()) > 0 {
+		return false, nil
+	}
+
+	// Labels
+	if _, ok := obj.GetLabels()["kubernetes.io/bootstrapping"]; ok {
+		return false, nil
+	}
+	if _, ok := obj.GetLabels()["kubernetes.io/cluster-service"]; ok {
+		return false, nil
+	}
+	if _, ok := obj.GetLabels()["kube-aggregator.kubernetes.io/automanaged"]; ok {
+		return false, nil
+	}
+
+	// Annotations
+	if _, ok := obj.GetAnnotations()["pv.kubernetes.io/provisioned-by"]; ok {
+		return false, nil
+	}
+	if v, ok := obj.GetAnnotations()["kubernetes.io/service-account.name"]; ok && v == "default" {
+		return false, nil
+	}
+
+	return true, nil
 }
