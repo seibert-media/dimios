@@ -9,3 +9,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/bborbe/teamvault_utils"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/kolide/kit"
