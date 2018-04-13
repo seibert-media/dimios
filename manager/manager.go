@@ -94,12 +94,13 @@ func (m *Manager) Run(ctx context.Context) error {
 	)
 	remoteProvider := remote_provider.New(clientConfig)
 
-	changeFinder := &finder.Finder{
-		FileProvider:   fileProvider,
-		RemoteProvider: remoteProvider,
-		Namespaces:     k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
-	}
-	changeApplier, err := apply.New(
+	finder := finder.New(
+		fileProvider,
+		remoteProvider,
+		k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
+	)
+
+	applier, err := apply.New(
 		m.Staging,
 		clientConfig,
 	)
@@ -107,12 +108,12 @@ func (m *Manager) Run(ctx context.Context) error {
 		return errors.Wrap(err, "creating applier failed")
 	}
 
-	changeSyncer := sync.New(
-		changeFinder.Changes,
-		changeApplier.Apply,
+	syncer := sync.New(
+		finder,
+		applier,
 	)
 
-	return changeSyncer.SyncChanges(ctx)
+	return syncer.Run(ctx)
 }
 
 func (m *Manager) createClientConfig() (*restclient.Config, error) {

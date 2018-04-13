@@ -14,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/seibert-media/k8s-deploy/change"
 	"github.com/seibert-media/k8s-deploy/k8s"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -25,10 +25,19 @@ type Finder struct {
 	Namespaces     []k8s.Namespace
 }
 
+// New finder
+func New(file, remote k8s.Provider, namespaces []k8s.Namespace) *Finder {
+	return &Finder{
+		FileProvider:   file,
+		RemoteProvider: remote,
+		Namespaces:     namespaces,
+	}
+}
+
 type changeNamespace func(context.Context) error
 
-// Changes writes all differences found to the channel until itself or context is done
-func (f *Finder) Changes(ctx context.Context, c chan<- change.Change) error {
+// Run writes all differences found to the channel until itself or context is done
+func (f *Finder) Run(ctx context.Context, c chan change.Change) error {
 	defer close(c)
 	var list []run.RunFunc
 	for _, namespace := range f.Namespaces {
@@ -118,13 +127,13 @@ func compare(a, b runtime.Object) bool {
 	if a.GetObjectKind().GroupVersionKind().Kind != b.GetObjectKind().GroupVersionKind().Kind {
 		return false
 	}
-	var a1, b1 metav1.Object
+	var a1, b1 k8s_metav1.Object
 	switch ta := a.(type) {
-	case metav1.Object:
+	case k8s_metav1.Object:
 		a1 = ta
 	}
 	switch tb := b.(type) {
-	case metav1.Object:
+	case k8s_metav1.Object:
 		b1 = tb
 	}
 	if a1 == nil || b1 == nil {
