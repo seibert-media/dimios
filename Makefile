@@ -21,11 +21,12 @@ test: glide
 	GO15VENDOREXPERIMENT=1 go test -cover `glide novendor`
 
 install:
-	GOBIN=$(GOPATH)/bin GO15VENDOREXPERIMENT=1 go install bin/k8s-deploy/*.go
+	GOBIN=$(GOPATH)/bin GO15VENDOREXPERIMENT=1 go install cmd/k8s-deploy/*.go
 
 run:
 	k8s-deploy \
 	-dir=~/Documents/workspaces/kubernetes/manifests/netcup \
+	-namespace=debug \
 	-logtostderr \
 	-v=4
 
