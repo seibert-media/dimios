@@ -6,10 +6,11 @@ import (
 	"github.com/seibert-media/k8s-deploy/k8s"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
+	k8s_schema "k8s.io/apimachinery/pkg/runtime/schema"
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
 	k8s_restclient "k8s.io/client-go/rest"
+	k8s_meta "k8s.io/apimachinery/pkg/api/meta"
 )
 
 type provider struct {
@@ -42,32 +43,52 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 		resources,
 	)
 
+	handeled := make(map[string]struct{})
+
 	for _, list := range resources {
+		glog.V(6).Infof("list group version %v", list.GroupVersion)
 		for _, resource := range list.APIResources {
 
-			gv, err := schema.ParseGroupVersion(list.GroupVersion)
-			if err != nil {
-				return nil, errors.Wrap(err, "parse group version")
+			if _, ok := handeled[resource.Kind]; ok {
+				continue
 			}
-			gvr := gv.WithResource(resource.Name)
-			if err != nil {
-				return nil, errors.Wrap(err, "parse group version resource")
+			handeled[resource.Kind] = struct{}{}
+
+			if resource.Kind != "Deployment" {
+				continue
 			}
 
-			client, err := dynamicClientPool.ClientForGroupVersionResource(gvr)
+			groupVersion, err := k8s_schema.ParseGroupVersion(list.GroupVersion)
+			if err != nil {
+				return nil, errors.Wrapf(err, "parse group version %s failed", list.GroupVersion)
+			}
+			groupVersionKind := groupVersion.WithKind(resource.Name)
+			if err != nil {
+				return nil, errors.Wrapf(err, "get group version for kind %s failed", resource.Name)
+			}
+
+			client, err := dynamicClientPool.ClientForGroupVersionKind(groupVersionKind)
 			if err != nil {
 				return nil, errors.Wrap(err, "get client for group")
 			}
 
 			ri := client.Resource(&resource, namespace.String())
 
-			object, err := ri.List(k8s_metav1.ListOptions{})
+			unstructuredList, err := ri.List(k8s_metav1.ListOptions{})
 			if err != nil {
 				glog.V(4).Infof("list failed: %v", err)
 				continue
 			}
 
-			result = append(result, object)
+			items, err := k8s_meta.ExtractList(unstructuredList)
+			if err != nil {
+				glog.V(4).Infof("extract items failed: %v", err)
+				continue
+			}
+			for _, item := range items {
+				glog.V(2).Infof("found api object %s", k8s.ObjectToString(item))
+				result = append(result, item)
+			}
 		}
 	}
 	glog.V(1).Infof("read api completed. found %d objects in namespace %s", len(result), namespace)

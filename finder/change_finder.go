@@ -61,6 +61,7 @@ func deleteChanges(fileObjects, remoteObjects []runtime.Object) []change.Change 
 			missing = false
 		}
 		if missing {
+			glog.V(2).Infof("delete %s", remoteObject.GetObjectKind().GroupVersionKind().Kind)
 			result = append(result, change.Change{
 				Deleted: true,
 				Object:  remoteObject,
@@ -73,6 +74,7 @@ func deleteChanges(fileObjects, remoteObjects []runtime.Object) []change.Change 
 func applyChanges(fileObjects []runtime.Object) []change.Change {
 	var result []change.Change
 	for _, fileObject := range fileObjects {
+		glog.V(2).Infof("apply %s", fileObject.GetObjectKind().GroupVersionKind().Kind)
 		result = append(result, change.Change{
 			Object: fileObject,
 		})
@@ -93,22 +95,24 @@ func compare(a, b runtime.Object) bool {
 	if a == b {
 		return true
 	}
-	if typeof(a) != typeof(b) {
+	glog.V(6).Infof("type %s <> %s", a.GetObjectKind().GroupVersionKind().Kind, b.GetObjectKind().GroupVersionKind().Kind)
+	if a.GetObjectKind().GroupVersionKind().Kind != b.GetObjectKind().GroupVersionKind().Kind {
 		return false
 	}
-	var a1, b1 metav1.ObjectMetaAccessor
+	var a1, b1 metav1.Object
 	switch ta := a.(type) {
-	case metav1.ObjectMetaAccessor:
+	case metav1.Object:
 		a1 = ta
 	}
 	switch tb := b.(type) {
-	case metav1.ObjectMetaAccessor:
+	case metav1.Object:
 		b1 = tb
 	}
 	if a1 == nil || b1 == nil {
 		return false
 	}
-	return strings.Compare(a1.GetObjectMeta().GetName(), b1.GetObjectMeta().GetName()) == 0
+	glog.V(6).Infof("name %s <> %s", a1.GetName(), b1.GetName())
+	return strings.Compare(a1.GetName(), b1.GetName()) == 0
 }
 
 func typeof(v interface{}) string {

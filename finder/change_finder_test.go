@@ -121,6 +121,7 @@ func TestApplyChanges(t *testing.T) {
 func TestDeleteChanges(t *testing.T) {
 	a := createIngress("debug", "hello")
 	b := createIngress("debug", "world")
+	c := createDeployment("debug", "hello")
 	testCases := []struct {
 		name          string
 		fileObjects   []runtime.Object
@@ -132,6 +133,7 @@ func TestDeleteChanges(t *testing.T) {
 		{"one to delete", []runtime.Object{}, []runtime.Object{a}, []change.Change{{Deleted: true, Object: a}}},
 		{"two object, but nothing to delete", []runtime.Object{b}, []runtime.Object{a, b}, []change.Change{{Deleted: true, Object: a}}},
 		{"two already exists", []runtime.Object{a, b}, []runtime.Object{b, a}, []change.Change{}},
+		{"same name but different type", []runtime.Object{a}, []runtime.Object{c}, []change.Change{{Deleted: true, Object: c}}},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

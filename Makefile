@@ -61,7 +61,7 @@ run:
 	-namespace=debug \
 	-teamvault-config=~/.teamvault-sm.json \
 	-logtostderr \
-	-v=4
+	-v=2
 
 # format entire repo (excluding vendor)
 format:
@@ -87,7 +87,7 @@ dev:
 	-namespace=debug \
 	-teamvault-config=~/.teamvault-sm.json \
 	-logtostderr \
-	-v=4
+	-v=2
 
 # build the docker image
 docker: build
