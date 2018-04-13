@@ -19,3 +19,9 @@ you need to have a file called `~/.teamvault-sm.json` containing your credential
   "pass": "password"
 }
 ```
+
+## Related Projects
+
+* [github.com/heptio/ark](https://github.com/heptio/ark)
+* [github.com/hasura/gitkube](https://github.com/hasura/gitkube)
+
