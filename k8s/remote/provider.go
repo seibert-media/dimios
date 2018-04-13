@@ -23,31 +23,6 @@ func New(config *k8s_restclient.Config) k8s.Provider {
 }
 
 func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, error) {
-	/*clientSet, err := k8s_kubernetes.NewForConfig(p.config)
-	if err != nil {
-		return nil, errors.Wrap(err, "create clientSet failed: %v")
-	}
-
-	var result []k8s_runtime.Object
-
-	ns, err := clientSet.CoreV1().Namespaces().Get(namespace.String(), k8s_metav1.GetOptions{})
-	if err != nil {
-		return nil, errors.Wrap(err, "get namespace failed: %v")
-	}
-
-	result = append(result, ns)
-
-	deploymentList, err := clientSet.AppsV1().Deployments(namespace.String()).List(k8s_metav1.ListOptions{})
-	if err != nil {
-		return nil, errors.Wrap(err, "list deployments failed: %v")
-	}
-	for _, d := range deploymentList.Items {
-		var obj = &d
-		glog.V(2).Infof("found remote object %s", k8s.ObjectToString(obj))
-		result = append(result, obj)
-	}
-	glog.V(1).Infof("read remote completed. found %d objects", len(result))
-	return result, nil*/
 	var result []k8s_runtime.Object
 	glog.V(4).Infof("get objects from k8s for namespace %s", namespace)
 	discoveryClient, err := k8s_discovery.NewDiscoveryClientForConfig(p.config)
