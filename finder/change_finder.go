@@ -5,13 +5,13 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/bborbe/run"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"github.com/seibert-media/k8s-deploy/change"
 	"github.com/seibert-media/k8s-deploy/k8s"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"github.com/bborbe/run"
 )
 
 type Finder struct {

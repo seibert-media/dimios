@@ -23,10 +23,9 @@ var (
 	teamvaultPassPtr       = flag.String("teamvault-pass", "", "teamvault password")
 	teamvaultConfigPathPtr = flag.String("teamvault-config", "", "teamvault config")
 	stagingPtr             = flag.Bool("staging", false, "staging status")
-
-	versionInfo = flag.Bool("version", true, "show version info")
-	dbg         = flag.Bool("debug", false, "enable debug mode")
-	sentryDsn   = flag.String("sentryDsn", "", "sentry dsn key")
+	versionInfo            = flag.Bool("version", true, "show version info")
+	dbg                    = flag.Bool("debug", false, "enable debug mode")
+	sentryDsn              = flag.String("sentryDsn", "", "sentry dsn key")
 )
 
 func main() {

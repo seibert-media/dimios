@@ -82,7 +82,7 @@ func (m *Manager) Run(ctx context.Context) error {
 	changeFinder := &finder.Finder{
 		FileProvider:   fileProvider,
 		RemoveProvider: removeProvider,
-		Namespaces:      m.namespaces(),
+		Namespaces:     k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
 	}
 	changeApplier, err := apply.New(
 		m.Staging,
@@ -96,10 +96,6 @@ func (m *Manager) Run(ctx context.Context) error {
 		changeApplier.Apply,
 	)
 	return changeSyncer.SyncChanges(ctx)
-}
-
-func (m *Manager) namespaces() [] k8s.Namespace {
-	return []k8s.Namespace{k8s.Namespace(m.Namespaces)}
 }
 
 func (m *Manager) createClientConfig() (*restclient.Config, error) {
