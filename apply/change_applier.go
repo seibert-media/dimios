@@ -17,22 +17,20 @@ import (
 
 // Applier for changes
 type Applier struct {
-	config    *k8s_restclient.Config
-	dynamic   k8s_dynamic.ClientPool
-	discovery *k8s_discovery.DiscoveryClient
+	dynamicClientPool k8s_dynamic.ClientPool
+	discoveryClient   *k8s_discovery.DiscoveryClient
 }
 
 // New Applier with clientset
 func New(config *k8s_restclient.Config) (*Applier, error) {
-	discovery, err := k8s_discovery.NewDiscoveryClientForConfig(config)
+	discoveryClient, err := k8s_discovery.NewDiscoveryClientForConfig(config)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating k8s_discovery client failed")
 	}
-
+	dynamicClientPool := k8s_dynamic.NewDynamicClientPool(config)
 	return &Applier{
-		config:    config,
-		dynamic:   k8s_dynamic.NewDynamicClientPool(config),
-		discovery: discovery,
+		dynamicClientPool: dynamicClientPool,
+		discoveryClient:   discoveryClient,
 	}, nil
 }
 
@@ -58,13 +56,12 @@ func (c *Applier) Apply(ctx context.Context, changes <-chan change.Change) error
 
 func (c *Applier) apply(ctx context.Context, change change.Change) error {
 
-	client, err := c.dynamic.ClientForGroupVersionKind(change.Object.GetObjectKind().GroupVersionKind())
+	client, err := c.dynamicClientPool.ClientForGroupVersionKind(change.Object.GetObjectKind().GroupVersionKind())
 	if err != nil {
 		return errors.Wrap(err, "creating k8s_dynamic client failed")
 	}
 
-	converter := k8s_runtime.DefaultUnstructuredConverter
-	u, err := converter.ToUnstructured(change.Object)
+	u, err := k8s_runtime.DefaultUnstructuredConverter.ToUnstructured(change.Object)
 	if err != nil {
 		return errors.New("unable to convert object to k8s_unstructured")
 	}
@@ -77,14 +74,14 @@ func (c *Applier) apply(ctx context.Context, change change.Change) error {
 		return errors.Wrap(err, "unable to get resource")
 	}
 
-	var result *k8s_unstructured.Unstructured
 	if change.Deleted {
-		err := resource.Delete(obj.GetName(), &k8s_metav1.DeleteOptions{})
-		if err != nil {
+		glog.V(3).Infof("delete %s", obj.GetName())
+		if err := resource.Delete(obj.GetName(), &k8s_metav1.DeleteOptions{}); err != nil {
 			return errors.Wrap(err, "unable to delete object")
 		}
 		return nil
 	}
+	var result *k8s_unstructured.Unstructured
 	if _, err := resource.Get(obj.GetName(), k8s_metav1.GetOptions{}); err != nil {
 		glog.V(3).Infoln("object not present, creating")
 		result, err = resource.Create(obj)
@@ -105,7 +102,7 @@ func (c *Applier) apply(ctx context.Context, change change.Change) error {
 }
 
 func (c *Applier) getResource(client k8s_dynamic.Interface, obj *k8s_unstructured.Unstructured) (k8s_dynamic.ResourceInterface, error) {
-	res, err := c.discovery.ServerResourcesForGroupVersion(
+	res, err := c.discoveryClient.ServerResourcesForGroupVersion(
 		obj.GroupVersionKind().GroupVersion().String())
 	if err != nil {
 		return nil, fmt.Errorf("unable to get resources(%v) from k8s_discovery client", obj)
