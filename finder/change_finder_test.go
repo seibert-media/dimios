@@ -109,7 +109,7 @@ func TestApplyChanges(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := applyChanges(tc.fileObjects)
+			result := additions(tc.fileObjects)
 			if err := AssertThat(len(result), Is(len(tc.expected)).Message("length of result mismatch")); err != nil {
 				t.Fatal(err)
 			}
@@ -141,7 +141,7 @@ func TestDeleteChanges(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := deleteChanges(tc.fileObjects, tc.remoteObjects)
+			result := deletions(tc.fileObjects, tc.remoteObjects)
 			if err := AssertThat(len(result), Is(len(tc.expected)).Message("length of result mismatch")); err != nil {
 				t.Fatal(err)
 			}

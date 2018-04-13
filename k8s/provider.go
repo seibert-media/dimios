@@ -11,5 +11,5 @@ import (
 // Provider for objects
 type Provider interface {
 	// GetObjects for the given namespace
-	GetObjects(namespace Namespace) ([]k8s_runtime.Object, error)
+	GetObjects(Namespace) ([]k8s_runtime.Object, error)
 }

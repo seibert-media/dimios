@@ -17,11 +17,9 @@ import (
 	k8s_schema "k8s.io/apimachinery/pkg/runtime/schema"
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
-	k8s_restclient "k8s.io/client-go/rest"
 )
 
 type provider struct {
-	config            *k8s_restclient.Config
 	discoveryClient   *k8s_discovery.DiscoveryClient
 	dynamicClientPool k8s_dynamic.ClientPool
 }
@@ -64,10 +62,6 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 				continue
 			}
 			handeled[resource.Kind] = struct{}{}
-
-			//if resource.Kind != "Deployment" {
-			//	continue
-			//}
 
 			groupVersion, err := k8s_schema.ParseGroupVersion(list.GroupVersion)
 			if err != nil {

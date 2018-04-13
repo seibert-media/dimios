@@ -16,12 +16,12 @@ const channelSize = 10
 
 // Syncer is responsible for sending incoming changes to the apply function
 type Syncer interface {
-	Run(ctx context.Context) error
+	Run(context.Context) error
 }
 
 // Handler interface for getting and applying changes
 type Handler interface {
-	Run(ctx context.Context, c chan change.Change) error
+	Run(context.Context, change.Change) error
 }
 
 type syncer struct {
