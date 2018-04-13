@@ -11,6 +11,7 @@ env:
 before_script:
   - make test
   - make cover
+  - go get -u github.com/haya14busa/goverage
   - godacov -t $CODACY_TOKEN -r ./coverage.out -c $TRAVIS_COMMIT
 
 script:
