@@ -4,54 +4,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 
-	io_util "github.com/bborbe/io/util"
 	"github.com/bborbe/k8s_deploy/k8s"
 	"github.com/bborbe/teamvault_utils/parser"
 	"github.com/ghodss/yaml"
 	"github.com/golang/glog"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	k8s_unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/kubernetes/scheme"
+	k8s_scheme "k8s.io/client-go/kubernetes/scheme"
 )
-
-type TemplateDirectory string
-
-func (t TemplateDirectory) String() string {
-	return string(t)
-}
-
-func (d TemplateDirectory) NormalizePath() (TemplateDirectory, error) {
-	root, err := io_util.NormalizePath(d.String())
-	if err != nil {
-		return "", err
-	}
-	return TemplateDirectory(root), nil
-}
-
-func (t *TemplateDirectory) PathToNamespace(namespace k8s.Namespace) NamespaceDirectory {
-	return NamespaceDirectory(path.Join(t.String(), namespace.String()))
-}
-
-type NamespaceDirectory string
-
-func (n NamespaceDirectory) String() string {
-	return string(n)
-}
-
-func (n NamespaceDirectory) Exists() bool {
-	f, err := os.Open(n.String())
-	if err != nil {
-		return false
-	}
-	fs, err := f.Stat()
-	if err != nil {
-		return false
-	}
-	return fs.IsDir()
-}
 
 type provider struct {
 	templateDirectory TemplateDirectory
@@ -68,6 +30,7 @@ func New(
 	}
 }
 
+// Return all objects in the given namespace
 func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, error) {
 	path, err := p.templateDirectory.NormalizePath()
 	if err != nil {
@@ -108,7 +71,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 			return fmt.Errorf("create object by content failed: %v", err)
 		}
 		glog.V(4).Infof("found kind %v", obj.GetObjectKind())
-		if obj, _, err = unstructured.UnstructuredJSONScheme.Decode(content, nil, obj); err != nil {
+		if obj, _, err = k8s_unstructured.UnstructuredJSONScheme.Decode(content, nil, obj); err != nil {
 			return fmt.Errorf("unmarshal to object failed: %v", err)
 		}
 		glog.V(2).Infof("found file object %s", k8s.ObjectToString(obj))
@@ -125,11 +88,11 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 }
 
 func kind(content []byte) (k8s_runtime.Object, error) {
-	_, kind, err := unstructured.UnstructuredJSONScheme.Decode(content, nil, nil)
+	_, kind, err := k8s_unstructured.UnstructuredJSONScheme.Decode(content, nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal to unknown failed: %v", err)
 	}
-	obj, err := scheme.Scheme.New(*kind)
+	obj, err := k8s_scheme.Scheme.New(*kind)
 	if err != nil {
 		return nil, fmt.Errorf("create object failed: %v", err)
 	}
