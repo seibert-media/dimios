@@ -1,7 +1,7 @@
 package k8s
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
+	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
 // Namespace of K8s
@@ -15,5 +15,5 @@ func (n Namespace) String() string {
 type Provider interface {
 
 	// Get objects for the given namespace
-	GetObjects(namespace Namespace) ([]runtime.Object, error)
+	GetObjects(namespace Namespace) ([]k8s_runtime.Object, error)
 }
