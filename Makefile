@@ -25,6 +25,9 @@ REVISION 	:= $(shell git rev-parse HEAD)
 REVSHORT 	:= $(shell git rev-parse --short HEAD)
 USER 		:= $(shell whoami)
 
+STAGING 	?= true
+V			?= 0
+
 DOCKER_TAGS := -t $(REGISTRY)/$(IMAGE):$(VERSION) -t $(REGISTRY)/$(IMAGE):latest
 
 -include .env
@@ -60,9 +63,9 @@ run:
 	-dir=$(MANIFEST_DIR) \
 	-namespace=debug \
 	-teamvault-config=~/.teamvault-sm.json \
-	-staging \
+	-staging=$(STAGING) \
 	-logtostderr \
-	-v=0
+	-v=$(V)
 
 # format entire repo (excluding vendor)
 format:
@@ -87,9 +90,9 @@ dev:
 	-dir=$(MANIFEST_DIR) \
 	-namespace=debug \
 	-teamvault-config=~/.teamvault-sm.json \
-	-staging \
+	-staging=$(STAGING) \
 	-logtostderr \
-	-v=0
+	-v=$(V)
 
 # build the docker image
 docker: build
