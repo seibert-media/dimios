@@ -51,7 +51,7 @@ func main() {
 		TemplateDirectory:   *templateDirectoryPtr,
 		Staging:             *stagingPtr,
 		TeamvaultConfigPath: *teamvaultConfigPathPtr,
-		TeamvaultUrl:        *teamvaultURLPtr,
+		TeamvaultURL:        *teamvaultURLPtr,
 		TeamvaultUser:       *teamvaultUserPtr,
 		TeamvaultPassword:   *teamvaultPassPtr,
 		Kubeconfig:          *kubeconfig,

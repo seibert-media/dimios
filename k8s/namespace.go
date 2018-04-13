@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-// Namespace of K8s
+// Namespace in Kubernetes
 type Namespace string
 
 // Return namespace as string.
@@ -12,7 +12,7 @@ func (n Namespace) String() string {
 	return string(n)
 }
 
-// Converts the string list into a namespace list.
+// NamespacesFromList converts the string list to a namespace list.
 func NamespacesFromList(namespaces []string) []Namespace {
 	result := make([]Namespace, len(namespaces))
 	for i, v := range namespaces {
@@ -21,7 +21,7 @@ func NamespacesFromList(namespaces []string) []Namespace {
 	return result
 }
 
-// Returns a list of namespaces parsed from the input.
+// NamespacesFromCommaSeperatedList returns a list of namespaces parsed from string
 func NamespacesFromCommaSeperatedList(list string) []Namespace {
 	return NamespacesFromList(strings.Split(list, ","))
 }

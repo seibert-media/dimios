@@ -1,4 +1,4 @@
-package remote_provider
+package provider
 
 import (
 	"strings"
@@ -20,12 +20,14 @@ type provider struct {
 	config *k8s_restclient.Config
 }
 
+// New remote provider with passed in rest config
 func New(config *k8s_restclient.Config) k8s.Provider {
 	return &provider{
 		config: config,
 	}
 }
 
+// GetObjects in the given namespace
 func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, error) {
 	var result []k8s_runtime.Object
 	glog.V(4).Infof("get objects from k8s for namespace %s", namespace)
