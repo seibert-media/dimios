@@ -44,7 +44,11 @@ func (c *Applier) Apply(ctx context.Context, changes <-chan change.Change) error
 				glog.V(1).Infoln("all changes applied")
 				return nil
 			}
-			glog.V(3).Infof("apply change %v", v)
+			if glog.V(6) {
+				glog.Infof("added %v to channel", v)
+			} else if glog.V(4) {
+				glog.Infof("added %s to channel", v.Object.GetObjectKind())
+			}
 			if err := c.apply(ctx, v); err != nil {
 				return fmt.Errorf("apply change failed: %v", err)
 			}

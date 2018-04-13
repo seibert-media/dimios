@@ -32,7 +32,11 @@ func (f *Finder) Changes(ctx context.Context, c chan<- change.Change) error {
 	for _, change := range changes(fileObjects, remoteObjects) {
 		select {
 		case c <- change:
-			glog.V(4).Infof("added %v to channel", change)
+			if glog.V(6) {
+				glog.Infof("added %v to channel", change)
+			} else if glog.V(4) {
+				glog.Infof("added %s to channel", change.Object.GetObjectKind())
+			}
 		case <-ctx.Done():
 			glog.V(3).Infoln("context done, skip add changes")
 			return nil
