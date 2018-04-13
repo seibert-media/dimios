@@ -60,8 +60,9 @@ run:
 	-dir=$(MANIFEST_DIR) \
 	-namespace=debug \
 	-teamvault-config=~/.teamvault-sm.json \
+	-staging \
 	-logtostderr \
-	-v=2
+	-v=0
 
 # format entire repo (excluding vendor)
 format:
@@ -86,8 +87,9 @@ dev:
 	-dir=$(MANIFEST_DIR) \
 	-namespace=debug \
 	-teamvault-config=~/.teamvault-sm.json \
+	-staging \
 	-logtostderr \
-	-v=2
+	-v=0
 
 # build the docker image
 docker: build

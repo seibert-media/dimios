@@ -58,16 +58,14 @@ func (m *Manager) Validate() error {
 	if len(m.Kubeconfig) == 0 {
 		return fmt.Errorf("kubeconfig missing")
 	}
-	if !m.Staging {
-		if len(m.TeamvaultUrl) == 0 {
-			return fmt.Errorf("teamvaul url missing")
-		}
-		if len(m.TeamvaultUser) == 0 {
-			return fmt.Errorf("teamvaul user missing")
-		}
-		if len(m.TeamvaultPassword) == 0 {
-			return fmt.Errorf("teamvaul password missing")
-		}
+	if len(m.TeamvaultUrl) == 0 && !m.Staging {
+		return fmt.Errorf("teamvaul url missing")
+	}
+	if len(m.TeamvaultUser) == 0 && !m.Staging {
+		return fmt.Errorf("teamvaul user missing")
+	}
+	if len(m.TeamvaultPassword) == 0 && !m.Staging {
+		return fmt.Errorf("teamvaul password missing")
 	}
 	return nil
 }
@@ -86,7 +84,10 @@ func (m *Manager) Run(ctx context.Context) error {
 		RemoveProvider: removeProvider,
 		Namespace:      k8s.Namespace(m.Namespace),
 	}
-	changeApplier, err := apply.New(clientConfig)
+	changeApplier, err := apply.New(
+		m.Staging,
+		clientConfig,
+	)
 	if err != nil {
 		return errors.Wrap(err, "creating applier failed")
 	}

@@ -18,18 +18,23 @@ import (
 
 // Applier for changes
 type Applier struct {
+	staging           bool
 	dynamicClientPool k8s_dynamic.ClientPool
 	discoveryClient   *k8s_discovery.DiscoveryClient
 }
 
 // New Applier with clientset
-func New(config *k8s_restclient.Config) (*Applier, error) {
+func New(
+	staging bool,
+	config *k8s_restclient.Config,
+) (*Applier, error) {
 	discoveryClient, err := k8s_discovery.NewDiscoveryClientForConfig(config)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating k8s_discovery client failed")
 	}
 	dynamicClientPool := k8s_dynamic.NewDynamicClientPool(config)
 	return &Applier{
+		staging:           staging,
 		dynamicClientPool: dynamicClientPool,
 		discoveryClient:   discoveryClient,
 	}, nil
@@ -60,6 +65,15 @@ func (c *Applier) Apply(ctx context.Context, changes <-chan change.Change) error
 }
 
 func (c *Applier) apply(ctx context.Context, change change.Change) error {
+	if c.staging {
+		if change.Deleted {
+			glog.V(0).Infof("would delete k8s object => %s", change.Object.GetObjectKind().GroupVersionKind().Kind)
+			return nil
+		}
+		glog.V(0).Infof("would apply k8s object => %s", change.Object.GetObjectKind().GroupVersionKind().Kind)
+		return nil
+	}
+
 	obj, err := createUnstructured(change)
 	if err != nil {
 		return errors.Wrap(err, "create unstructed failed")
