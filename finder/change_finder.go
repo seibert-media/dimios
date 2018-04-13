@@ -18,14 +18,16 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
+// Finder is looking for differences between the local file and the remote provider in `namespaces`
 type Finder struct {
 	FileProvider   k8s.Provider
-	RemoveProvider k8s.Provider
+	RemoteProvider k8s.Provider
 	Namespaces     []k8s.Namespace
 }
 
 type changeNamespace func(context.Context) error
 
+// Changes writes all differences found to the channel until itself or context is done
 func (f *Finder) Changes(ctx context.Context, c chan<- change.Change) error {
 	defer close(c)
 	var list []run.RunFunc
@@ -42,7 +44,7 @@ func (f *Finder) changesForNamespace(ctx context.Context, c chan<- change.Change
 	if err != nil {
 		return errors.Wrap(err, "get file objects failed")
 	}
-	remoteObjects, err := f.RemoveProvider.GetObjects(namespace)
+	remoteObjects, err := f.RemoteProvider.GetObjects(namespace)
 	if err != nil {
 		return errors.Wrap(err, "get remote objects failed")
 	}

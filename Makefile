@@ -27,6 +27,7 @@ USER 		:= $(shell whoami)
 
 STAGING 	?= true
 V			?= 0
+NAMESPACES	?= debug
 
 DOCKER_TAGS := -t $(REGISTRY)/$(IMAGE):$(VERSION) -t $(REGISTRY)/$(IMAGE):latest
 
@@ -61,7 +62,7 @@ install:
 run:
 	k8s-deploy \
 	-dir=$(MANIFEST_DIR) \
-	-namespace=debug \
+	-namespaces=$(NAMESPACES) \
 	-teamvault-config=~/.teamvault-sm.json \
 	-staging=$(STAGING) \
 	-logtostderr \
@@ -88,7 +89,7 @@ build:
 dev:
 	@go run -ldflags $(KIT_VERSION) cmd/$(NAME)/*.go \
 	-dir=$(MANIFEST_DIR) \
-	-namespace=debug \
+	-namespaces=$(NAMESPACES) \
 	-teamvault-config=~/.teamvault-sm.json \
 	-staging=$(STAGING) \
 	-logtostderr \

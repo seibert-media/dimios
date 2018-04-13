@@ -11,7 +11,7 @@ import (
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
-// Contains the Kubernetes object and if it was deleted or not
+// Change stores the Kubernetes object and whether to delete it or not
 type Change struct {
 	Deleted bool
 	Object  k8s_runtime.Object
@@ -21,7 +21,6 @@ type Change struct {
 func (c *Change) String() string {
 	if c.Deleted {
 		return fmt.Sprintf("DELETE %s", k8s.ObjectToString(c.Object))
-	} else {
-		return fmt.Sprintf("CREATE %s", k8s.ObjectToString(c.Object))
 	}
+	return fmt.Sprintf("CREATE %s", k8s.ObjectToString(c.Object))
 }

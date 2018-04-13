@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package file
+package provider
 
 import (
 	"fmt"
@@ -24,6 +24,7 @@ type provider struct {
 	parser            parser.Parser
 }
 
+// New file provider for directory using parser
 func New(
 	templateDirectory TemplateDirectory,
 	parser parser.Parser,
@@ -34,7 +35,7 @@ func New(
 	}
 }
 
-// Return all objects in the given namespace
+// GetObjects in the given namespace
 func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, error) {
 	path, err := p.templateDirectory.NormalizePath()
 	if err != nil {

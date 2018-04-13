@@ -2,21 +2,21 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package file
+package provider
 
 import (
 	"os"
 )
 
-// Directory contain all manifests files for the namespace.
+// NamespaceDirectory contains all manifest files for the namespace
 type NamespaceDirectory string
 
-// Returns the path of the directory.
+// Returns the path of the NamespaceDirectory
 func (n NamespaceDirectory) String() string {
 	return string(n)
 }
 
-// Return true if the directory exists.
+// Exists returns true if the NamespaceDirectory exists
 func (n NamespaceDirectory) Exists() bool {
 	f, err := os.Open(n.String())
 	if err != nil {
