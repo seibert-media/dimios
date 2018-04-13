@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/bborbe/k8s_deploy/change"
-
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
