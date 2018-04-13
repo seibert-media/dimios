@@ -9,6 +9,7 @@ import (
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
 	k8s_restclient "k8s.io/client-go/rest"
+	"k8s.io/apimachinery/pkg/api/meta"
 )
 
 type provider struct {
@@ -34,20 +35,30 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 		return nil, errors.Wrap(err, "get server resouces failed")
 	}
 	for _, apiResource := range apiResourceList {
-		glog.V(4).Infof("apiresouce %v", apiResource)
 		for _, resource := range apiResource.APIResources {
+			if resource.Name != "deployments" {
+				continue
+			}
 			client, err := dynamicClientPool.ClientForGroupVersionKind(apiResource.GroupVersionKind())
 			if err != nil {
 				return nil, errors.Wrap(err, "get client for group")
 			}
 			ri := client.Resource(&resource, namespace.String())
-			object, err := ri.List(k8s_metav1.ListOptions{})
+			unstructuredList, err := ri.List(k8s_metav1.ListOptions{})
 			if err != nil {
-				glog.V(4).Infof("list %s failed: %s", resource.Name, err)
+				glog.V(4).Infof("list failed: %v", err)
 				continue
 			}
-			glog.V(4).Infof("add object %v", object)
-			result = append(result, object)
+			glog.V(4).Infof("add object %v", unstructuredList)
+
+			items, err := meta.ExtractList(unstructuredList)
+			if err != nil {
+				glog.V(4).Infof("extract items failed: %v", err)
+				continue
+			}
+			for _, item := range items {
+				result = append(result, item)
+			}
 		}
 	}
 	glog.V(1).Infof("read api completed. found %d objects in namespace %s", len(result), namespace)
