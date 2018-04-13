@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/seibert-media/k8s-deploy.svg?branch=master)](https://travis-ci.org/seibert-media/k8s-deploy)
 [![Docker Repository on Quay](https://quay.io/repository/seibertmedia/k8s-deploy/status "Docker Repository on Quay")](https://quay.io/repository/seibertmedia/k8s-deploy)
 
-Overwatch is an application to keep a kubernetes cluster on a clean state based on provided manifests.
+Kubernetes Deploy is an application to keep a kubernetes cluster on a clean state based on provided manifests.
 Those manifests get automatically applied and no longer existing resources are being removed by the application.
 
 ## Requirements
