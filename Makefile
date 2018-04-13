@@ -157,4 +157,5 @@ errcheck:
 	errcheck -ignore '(Close|Write)' $(shell go list ./... | grep -v /vendor/)
 
 cover:
-	goverage -v -coverprofile=coverage.out $(shell go list ./... | grep -v /vendor/)
+ go get github.com/haya14busa/goverage
+ goverage -v -coverprofile=coverage.out $(shell go list ./... | grep -v /vendor/)
