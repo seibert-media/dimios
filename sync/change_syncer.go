@@ -16,6 +16,7 @@ type getChanges func(context.Context, chan<- change.Change) error
 type Syncer interface {
 	SyncChanges(ctx context.Context) error
 }
+
 type syncer struct {
 	getChanges   getChanges
 	applyChanges applyChanges

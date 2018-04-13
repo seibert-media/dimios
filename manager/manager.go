@@ -76,7 +76,6 @@ func (m *Manager) Validate() error {
 func (m *Manager) Run(ctx context.Context) error {
 	glog.V(0).Info("kubernetes-manager started")
 	defer glog.V(0).Info("kubernetes-manager finished")
-
 	fileProvider := file.New(file.TemplateDirectory(m.TemplateDirectory), m.createTeamvaultConfigParser())
 	clientConfig, err := m.createClientConfig()
 	if err != nil {
@@ -87,7 +86,6 @@ func (m *Manager) Run(ctx context.Context) error {
 		return fmt.Errorf("create clientSet failed: %v", err)
 	}
 	removeProvider := remote_provider.New(clientSet)
-
 	changeFinder := &finder.Finder{
 		FileProvider:   fileProvider,
 		RemoveProvider: removeProvider,
@@ -101,7 +99,6 @@ func (m *Manager) Run(ctx context.Context) error {
 		changeFinder.Changes,
 		changeApplier.Apply,
 	)
-
 	return changeSyncer.SyncChanges(ctx)
 }
 
