@@ -5,8 +5,8 @@ import (
 	"github.com/seibert-media/k8s-deploy/k8s"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
-	k8s_dynamic "k8s.io/client-go/dynamic"
 	k8s_discovery "k8s.io/client-go/discovery"
+	k8s_dynamic "k8s.io/client-go/dynamic"
 	k8s_restclient "k8s.io/client-go/rest"
 )
 

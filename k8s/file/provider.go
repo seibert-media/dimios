@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/seibert-media/k8s-deploy/k8s"
 	"github.com/bborbe/teamvault_utils/parser"
 	"github.com/ghodss/yaml"
 	"github.com/golang/glog"
+	"github.com/seibert-media/k8s-deploy/k8s"
 	k8s_unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
 	k8s_scheme "k8s.io/client-go/kubernetes/scheme"

@@ -4,16 +4,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/seibert-media/k8s-deploy/change"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	"github.com/seibert-media/k8s-deploy/change"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s_unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
+	k8s_schema "k8s.io/apimachinery/pkg/runtime/schema"
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
 	k8s_restclient "k8s.io/client-go/rest"
-	k8s_schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 // Applier for changes
