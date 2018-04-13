@@ -48,6 +48,8 @@ deps:
 	go get -u github.com/kisielk/errcheck
 	go get -u github.com/golang/dep/cmd/dep
 	go get -u github.com/bborbe/docker_utils/bin/docker_remote_tag_exists
+	go get -u github.com/haya14busa/goverage
+	go get -u github.com/schrej/godacov
 
 # test entire repo
 test:
@@ -154,3 +156,8 @@ lint:
 # errcheck entire repo (excluding vendor)
 errcheck:
 	errcheck -ignore '(Close|Write)' $(shell go list ./... | grep -v /vendor/)
+
+cover:
+	go get github.com/haya14busa/goverage
+	go get github.com/schrej/godacov
+	goverage -v -coverprofile=coverage.out $(shell go list ./... | grep -v /vendor/)
