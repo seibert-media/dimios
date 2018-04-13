@@ -8,10 +8,12 @@ env:
   - REPO: $TRAVIS_REPO_SLUG
   - VERSION: $TRAVIS_TAG
 
+before_install:
+  - make deps
+
 before_script:
   - make test
   - make cover
-  - go get -u github.com/haya14busa/goverage
   - godacov -t $CODACY_TOKEN -r ./coverage.out -c $TRAVIS_COMMIT
 
 script:
