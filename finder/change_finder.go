@@ -2,11 +2,11 @@ package finder
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"strings"
 
 	"github.com/golang/glog"
+	"github.com/pkg/errors"
 	"github.com/seibert-media/k8s-deploy/change"
 	"github.com/seibert-media/k8s-deploy/k8s"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -23,16 +23,20 @@ func (f *Finder) Changes(ctx context.Context, c chan<- change.Change) error {
 	defer close(c)
 	fileObjects, err := f.FileProvider.GetObjects(f.Namespace)
 	if err != nil {
-		return fmt.Errorf("get file objects failed: %v", err)
+		return errors.Wrap(err, "get file objects failed")
 	}
 	remoteObjects, err := f.RemoveProvider.GetObjects(f.Namespace)
 	if err != nil {
-		return fmt.Errorf("get remote objects failed: %v", err)
+		return errors.Wrap(err, "get remote objects failed")
 	}
 	for _, change := range changes(fileObjects, remoteObjects) {
 		select {
 		case c <- change:
-			glog.V(4).Infof("added %v to channel", change)
+			if glog.V(6) {
+				glog.Infof("added %v to channel", change)
+			} else if glog.V(4) {
+				glog.Infof("added %s to channel", change.Object.GetObjectKind())
+			}
 		case <-ctx.Done():
 			glog.V(3).Infoln("context done, skip add changes")
 			return nil
