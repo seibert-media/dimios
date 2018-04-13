@@ -88,7 +88,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 
 			object, err := ri.List(k8s_metav1.ListOptions{})
 			if err != nil {
-				glog.V(4).Infof("list %s failed: %s", resource.Name, err)
+				glog.V(4).Infof("list failed: %v", err)
 				continue
 			}
 
