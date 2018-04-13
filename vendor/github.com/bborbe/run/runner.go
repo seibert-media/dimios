@@ -9,9 +9,9 @@ import (
 	"github.com/golang/glog"
 )
 
-type run func(context.Context) error
+type RunFunc func(context.Context) error
 
-func CancelOnFirstFinish(ctx context.Context, runners ...run) error {
+func CancelOnFirstFinish(ctx context.Context, runners ...RunFunc) error {
 	if len(runners) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
@@ -34,7 +34,7 @@ func CancelOnFirstFinish(ctx context.Context, runners ...run) error {
 	}
 }
 
-func CancelOnFirstError(ctx context.Context, runners ...run) error {
+func CancelOnFirstError(ctx context.Context, runners ...RunFunc) error {
 	if len(runners) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
@@ -70,7 +70,7 @@ func CancelOnFirstError(ctx context.Context, runners ...run) error {
 
 }
 
-func All(ctx context.Context, runners ...run) error {
+func All(ctx context.Context, runners ...RunFunc) error {
 	if len(runners) == 0 {
 		glog.V(2).Infof("nothing to run")
 		return nil
