@@ -11,6 +11,7 @@ import (
 	"github.com/golang/glog"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"github.com/pkg/errors"
 )
 
 type Finder struct {
@@ -23,11 +24,11 @@ func (f *Finder) Changes(ctx context.Context, c chan<- change.Change) error {
 	defer close(c)
 	fileObjects, err := f.FileProvider.GetObjects(f.Namespace)
 	if err != nil {
-		return fmt.Errorf("get file objects failed: %v", err)
+		return errors.Wrap(err, "get file objects failed")
 	}
 	remoteObjects, err := f.RemoveProvider.GetObjects(f.Namespace)
 	if err != nil {
-		return fmt.Errorf("get remote objects failed: %v", err)
+		return errors.Wrap(err, "get remote objects failed")
 	}
 	for _, change := range changes(fileObjects, remoteObjects) {
 		select {
