@@ -13,6 +13,7 @@ import (
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
 	k8s_restclient "k8s.io/client-go/rest"
+	k8s_schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 // Applier for changes
@@ -55,21 +56,12 @@ func (c *Applier) Apply(ctx context.Context, changes <-chan change.Change) error
 }
 
 func (c *Applier) apply(ctx context.Context, change change.Change) error {
-
-	client, err := c.dynamicClientPool.ClientForGroupVersionKind(change.Object.GetObjectKind().GroupVersionKind())
+	obj, err := createUnstructured(change)
 	if err != nil {
-		return errors.Wrap(err, "creating k8s_dynamic client failed")
+		return errors.Wrap(err, "create unstructed failed")
 	}
 
-	u, err := k8s_runtime.DefaultUnstructuredConverter.ToUnstructured(change.Object)
-	if err != nil {
-		return errors.New("unable to convert object to k8s_unstructured")
-	}
-	obj := &k8s_unstructured.Unstructured{
-		Object: u,
-	}
-
-	resource, err := c.getResource(client, obj)
+	resource, err := c.getResource(change.Object.GetObjectKind().GroupVersionKind(), obj)
 	if err != nil {
 		return errors.Wrap(err, "unable to get resource")
 	}
@@ -98,12 +90,27 @@ func (c *Applier) apply(ctx context.Context, change change.Change) error {
 
 	glog.V(6).Infof("apply result: %v", result)
 	return nil
-
 }
 
-func (c *Applier) getResource(client k8s_dynamic.Interface, obj *k8s_unstructured.Unstructured) (k8s_dynamic.ResourceInterface, error) {
-	res, err := c.discoveryClient.ServerResourcesForGroupVersion(
-		obj.GroupVersionKind().GroupVersion().String())
+func createUnstructured(change change.Change) (*k8s_unstructured.Unstructured, error) {
+	u, err := k8s_runtime.DefaultUnstructuredConverter.ToUnstructured(change.Object)
+	if err != nil {
+		return nil, errors.New("unable to convert object to k8s_unstructured")
+	}
+	obj := &k8s_unstructured.Unstructured{
+		Object: u,
+	}
+	return obj, nil
+}
+
+func (c *Applier) getResource(kind k8s_schema.GroupVersionKind, obj *k8s_unstructured.Unstructured) (k8s_dynamic.ResourceInterface, error) {
+
+	client, err := c.dynamicClientPool.ClientForGroupVersionKind(kind)
+	if err != nil {
+		return nil, errors.Wrap(err, "creating k8s_dynamic client failed")
+	}
+
+	res, err := c.discoveryClient.ServerResourcesForGroupVersion(obj.GroupVersionKind().GroupVersion().String())
 	if err != nil {
 		return nil, fmt.Errorf("unable to get resources(%v) from k8s_discovery client", obj)
 	}
