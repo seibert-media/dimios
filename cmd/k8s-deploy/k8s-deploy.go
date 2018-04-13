@@ -17,7 +17,7 @@ import (
 
 var (
 	templateDirectoryPtr   = flag.String("dir", "", "Path to template directory")
-	namespacePtr           = flag.String("namespace", "", "Kubernetes namespace")
+	namespacesPtr          = flag.String("namespaces", "", "list of kubernetes namespace separated by comma")
 	teamvaultURLPtr        = flag.String("teamvault-url", "", "teamvault url")
 	teamvaultUserPtr       = flag.String("teamvault-user", "", "teamvault user")
 	teamvaultPassPtr       = flag.String("teamvault-pass", "", "teamvault password")
@@ -48,7 +48,7 @@ func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	m := &manager.Manager{
-		Namespace:           *namespacePtr,
+		Namespaces:          *namespacesPtr,
 		TemplateDirectory:   *templateDirectoryPtr,
 		Staging:             *stagingPtr,
 		TeamvaultConfigPath: *teamvaultConfigPathPtr,

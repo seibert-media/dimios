@@ -29,7 +29,7 @@ type Manager struct {
 	TeamvaultUser       string
 	TeamvaultPassword   string
 	TeamvaultConfigPath string
-	Namespace           string
+	Namespaces          string
 	Kubeconfig          string
 }
 
@@ -52,7 +52,7 @@ func (m *Manager) Validate() error {
 	if len(m.TemplateDirectory) == 0 {
 		return fmt.Errorf("template directory missing")
 	}
-	if len(m.Namespace) == 0 {
+	if len(m.Namespaces) == 0 {
 		return fmt.Errorf("namespace missing")
 	}
 	if len(m.Kubeconfig) == 0 {
@@ -82,7 +82,7 @@ func (m *Manager) Run(ctx context.Context) error {
 	changeFinder := &finder.Finder{
 		FileProvider:   fileProvider,
 		RemoveProvider: removeProvider,
-		Namespace:      k8s.Namespace(m.Namespace),
+		Namespaces:      m.namespaces(),
 	}
 	changeApplier, err := apply.New(
 		m.Staging,
@@ -96,6 +96,10 @@ func (m *Manager) Run(ctx context.Context) error {
 		changeApplier.Apply,
 	)
 	return changeSyncer.SyncChanges(ctx)
+}
+
+func (m *Manager) namespaces() [] k8s.Namespace {
+	return []k8s.Namespace{k8s.Namespace(m.Namespaces)}
 }
 
 func (m *Manager) createClientConfig() (*restclient.Config, error) {
