@@ -3,9 +3,9 @@ package sync
 import (
 	"context"
 
-	"github.com/seibert-media/k8s-deploy/change"
 	"github.com/bborbe/run"
 	"github.com/golang/glog"
+	"github.com/seibert-media/k8s-deploy/change"
 )
 
 const channelSize = 10

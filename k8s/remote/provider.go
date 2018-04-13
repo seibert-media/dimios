@@ -1,13 +1,13 @@
 package remote_provider
 
 import (
+	"github.com/pkg/errors"
 	"github.com/seibert-media/k8s-deploy/k8s"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/kubernetes"
-	k8s_dynamic "k8s.io/client-go/dynamic"
 	k8s_discovery "k8s.io/client-go/discovery"
-	"github.com/pkg/errors"
+	k8s_dynamic "k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 )
 
 type provider struct {

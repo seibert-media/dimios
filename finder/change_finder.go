@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/golang/glog"
 	"github.com/seibert-media/k8s-deploy/change"
 	"github.com/seibert-media/k8s-deploy/k8s"
-	"github.com/golang/glog"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
