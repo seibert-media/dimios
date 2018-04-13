@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bborbe/k8s_deploy/change"
+	"github.com/seibert-media/k8s-deploy/change"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -115,11 +115,9 @@ func (c *Applier) getResource(kind k8s_schema.GroupVersionKind, obj *k8s_unstruc
 		return nil, fmt.Errorf("unable to get resources(%v) from k8s_discovery client", obj)
 	}
 
-	var resource k8s_dynamic.ResourceInterface
 	for _, r := range res.APIResources {
 		if r.Kind == obj.GetObjectKind().GroupVersionKind().Kind {
-			resource = client.Resource(&r, obj.GetNamespace())
-			return resource, nil
+			return client.Resource(&r, obj.GetNamespace()), nil
 		}
 	}
 

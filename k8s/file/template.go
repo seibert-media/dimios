@@ -4,7 +4,7 @@ import (
 	"path"
 
 	io_util "github.com/bborbe/io/util"
-	"github.com/bborbe/k8s_deploy/k8s"
+	"github.com/seibert-media/k8s-deploy/k8s"
 )
 
 // Root directory for all namespaces

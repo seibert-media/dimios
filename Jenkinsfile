@@ -64,13 +64,13 @@ podTemplate(
 					timeout(time: 5, unit: 'MINUTES') {
 						sh """
 						mkdir -p /go/src/github.com/bborbe
-						ln -s `pwd` /go/src/github.com/bborbe/k8s_deploy
+						ln -s `pwd` /go/src/github.com/seibert-media/k8s-deploy
 						"""
 					}
 				}
 				stage('Golang Test') {
 					timeout(time: 15, unit: 'MINUTES') {
-						sh "cd /go/src/github.com/bborbe/k8s_deploy && make test"
+						sh "cd /go/src/github.com/seibert-media/k8s-deploy && make test"
 					}
 				}
 			}

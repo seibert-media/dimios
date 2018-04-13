@@ -9,7 +9,7 @@ import (
 
 	"path/filepath"
 
-	"github.com/bborbe/k8s_deploy/manager"
+	"github.com/seibert-media/k8s-deploy/manager"
 	"github.com/golang/glog"
 	"k8s.io/client-go/util/homedir"
 )

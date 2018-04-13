@@ -3,7 +3,7 @@ package sync
 import (
 	"context"
 
-	"github.com/bborbe/k8s_deploy/change"
+	"github.com/seibert-media/k8s-deploy/change"
 	"github.com/bborbe/run"
 	"github.com/golang/glog"
 )

@@ -1,13 +1,13 @@
 package remote_provider
 
 import (
-	"fmt"
-
-	"github.com/bborbe/k8s_deploy/k8s"
-	"github.com/golang/glog"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/seibert-media/k8s-deploy/k8s"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
+	k8s_dynamic "k8s.io/client-go/dynamic"
+	k8s_discovery "k8s.io/client-go/discovery"
+	"github.com/pkg/errors"
 )
 
 type provider struct {
@@ -23,21 +23,22 @@ func New(clientset *kubernetes.Clientset) k8s.Provider {
 func (p *provider) GetObjects(namespace k8s.Namespace) ([]runtime.Object, error) {
 	var result []runtime.Object
 
-	ns, err := p.clientset.CoreV1().Namespaces().Get(namespace.String(), v1.GetOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("get namespace failed: %v", err)
-	}
-	result = append(result, ns)
+	var discoveryClient *k8s_discovery.DiscoveryClient
+	var client k8s_dynamic.Interface
 
-	deploymentList, err := p.clientset.AppsV1().Deployments(namespace.String()).List(v1.ListOptions{})
+	resourceLists, err := discoveryClient.ServerResources()
 	if err != nil {
-		return nil, fmt.Errorf("list deployments failed: %v", err)
+		return nil, errors.Wrap(err, "get server resouces failed")
 	}
-	for _, d := range deploymentList.Items {
-		var obj = &d
-		glog.V(2).Infof("found remote object %s", k8s.ObjectToString(obj))
-		result = append(result, obj)
+	for _, resourceList := range resourceLists {
+		for _, resource := range resourceList.APIResources {
+			ri := client.Resource(&resource, namespace.String())
+			object, err := ri.List(metav1.ListOptions{})
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, object)
+		}
 	}
-	glog.V(1).Infof("read remote completed. found %d objects", len(result))
 	return result, nil
 }

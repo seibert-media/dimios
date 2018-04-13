@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bborbe/k8s_deploy/k8s"
+	"github.com/seibert-media/k8s-deploy/k8s"
 	"github.com/bborbe/teamvault_utils/parser"
 	"github.com/ghodss/yaml"
 	"github.com/golang/glog"

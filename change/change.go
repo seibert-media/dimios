@@ -3,7 +3,7 @@ package change
 import (
 	"fmt"
 
-	"github.com/bborbe/k8s_deploy/k8s"
+	"github.com/seibert-media/k8s-deploy/k8s"
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
