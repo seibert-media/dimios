@@ -8,12 +8,11 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	config := &restclient.Config{}
-	a, err := New(config)
+	applier, err := New(true, &restclient.Config{})
 	if err != nil {
 		t.Fatal("Apply_New() failed with", err)
 	}
-	if err := AssertThat(a, NotNilValue()); err != nil {
+	if err := AssertThat(applier, NotNilValue()); err != nil {
 		t.Fatal(err)
 	}
 }
