@@ -7,31 +7,31 @@ import (
 	"github.com/bborbe/k8s_deploy/change"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/dynamic"
-	restclient "k8s.io/client-go/rest"
+	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8s_unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
+	k8s_discovery "k8s.io/client-go/discovery"
+	k8s_dynamic "k8s.io/client-go/dynamic"
+	k8s_restclient "k8s.io/client-go/rest"
 )
 
 // Applier for changes
 type Applier struct {
-	config    *restclient.Config
-	dynamic   dynamic.ClientPool
-	discovery *discovery.DiscoveryClient
+	config    *k8s_restclient.Config
+	dynamic   k8s_dynamic.ClientPool
+	discovery *k8s_discovery.DiscoveryClient
 }
 
 // New Applier with clientset
-func New(config *restclient.Config) (*Applier, error) {
-	discovery, err := discovery.NewDiscoveryClientForConfig(config)
+func New(config *k8s_restclient.Config) (*Applier, error) {
+	discovery, err := k8s_discovery.NewDiscoveryClientForConfig(config)
 	if err != nil {
-		return nil, errors.Wrap(err, "creating discovery client failed")
+		return nil, errors.Wrap(err, "creating k8s_discovery client failed")
 	}
 
 	return &Applier{
 		config:    config,
-		dynamic:   dynamic.NewDynamicClientPool(config),
+		dynamic:   k8s_dynamic.NewDynamicClientPool(config),
 		discovery: discovery,
 	}, nil
 }
@@ -60,15 +60,15 @@ func (c *Applier) apply(ctx context.Context, change change.Change) error {
 
 	client, err := c.dynamic.ClientForGroupVersionKind(change.Object.GetObjectKind().GroupVersionKind())
 	if err != nil {
-		return errors.Wrap(err, "creating dynamic client failed")
+		return errors.Wrap(err, "creating k8s_dynamic client failed")
 	}
 
-	converter := runtime.DefaultUnstructuredConverter
+	converter := k8s_runtime.DefaultUnstructuredConverter
 	u, err := converter.ToUnstructured(change.Object)
 	if err != nil {
-		return errors.New("unable to convert object to unstructured")
+		return errors.New("unable to convert object to k8s_unstructured")
 	}
-	obj := &unstructured.Unstructured{
+	obj := &k8s_unstructured.Unstructured{
 		Object: u,
 	}
 
@@ -77,15 +77,15 @@ func (c *Applier) apply(ctx context.Context, change change.Change) error {
 		return errors.Wrap(err, "unable to get resource")
 	}
 
-	var result *unstructured.Unstructured
+	var result *k8s_unstructured.Unstructured
 	if change.Deleted {
-		err := resource.Delete(obj.GetName(), &metav1.DeleteOptions{})
+		err := resource.Delete(obj.GetName(), &k8s_metav1.DeleteOptions{})
 		if err != nil {
 			return errors.Wrap(err, "unable to delete object")
 		}
 		return nil
 	}
-	if _, err := resource.Get(obj.GetName(), metav1.GetOptions{}); err != nil {
+	if _, err := resource.Get(obj.GetName(), k8s_metav1.GetOptions{}); err != nil {
 		glog.V(3).Infoln("object not present, creating")
 		result, err = resource.Create(obj)
 		if err != nil {
@@ -104,14 +104,14 @@ func (c *Applier) apply(ctx context.Context, change change.Change) error {
 
 }
 
-func (c *Applier) getResource(client dynamic.Interface, obj *unstructured.Unstructured) (dynamic.ResourceInterface, error) {
+func (c *Applier) getResource(client k8s_dynamic.Interface, obj *k8s_unstructured.Unstructured) (k8s_dynamic.ResourceInterface, error) {
 	res, err := c.discovery.ServerResourcesForGroupVersion(
 		obj.GroupVersionKind().GroupVersion().String())
 	if err != nil {
-		return nil, fmt.Errorf("unable to get resources(%v) from discovery client", obj)
+		return nil, fmt.Errorf("unable to get resources(%v) from k8s_discovery client", obj)
 	}
 
-	var resource dynamic.ResourceInterface
+	var resource k8s_dynamic.ResourceInterface
 	for _, r := range res.APIResources {
 		if r.Kind == obj.GetObjectKind().GroupVersionKind().Kind {
 			resource = client.Resource(&r, obj.GetNamespace())
