@@ -1,5 +1,12 @@
-FROM tianon/true
-MAINTAINER Benjamin Borbe <bborbe@rocketnews.de>
-COPY k8s-deploy /
+FROM scratch
+
+LABEL maintainer //SEIBERT/MEDIA GmbH <docker@seibert-media.net>
+LABEL type "public"
+LABEL versioning "simple"
+
+ARG TOOL
+
+ADD ./build/ /
 COPY files/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-ENTRYPOINT ["/k8s-deploy"]
+
+ENTRYPOINT ["./app"]

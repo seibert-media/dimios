@@ -1,0 +1,10 @@
+package: github.com/bborbe/http
+import:
+- package: github.com/bborbe/io
+  subpackages:
+  - file_writer
+  - reader_shadow_copy
+  - util
+- package: github.com/golang/glog
+testImport:
+- package: github.com/bborbe/assert

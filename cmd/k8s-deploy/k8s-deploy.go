@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/golang/glog"
+	"github.com/kolide/kit/version"
 	"github.com/seibert-media/k8s-deploy/manager"
 	"k8s.io/client-go/util/homedir"
 )
@@ -17,16 +18,26 @@ import (
 var (
 	templateDirectoryPtr   = flag.String("dir", "", "Path to template directory")
 	namespacePtr           = flag.String("namespace", "", "Kubernetes namespace")
-	teamvaultUrlPtr        = flag.String("teamvault-url", "", "teamvault url")
+	teamvaultURLPtr        = flag.String("teamvault-url", "", "teamvault url")
 	teamvaultUserPtr       = flag.String("teamvault-user", "", "teamvault user")
 	teamvaultPassPtr       = flag.String("teamvault-pass", "", "teamvault password")
 	teamvaultConfigPathPtr = flag.String("teamvault-config", "", "teamvault config")
 	stagingPtr             = flag.Bool("staging", false, "staging status")
+
+	versionInfo = flag.Bool("version", true, "show version info")
+	dbg         = flag.Bool("debug", false, "enable debug mode")
+	sentryDsn   = flag.String("sentryDsn", "", "sentry dsn key")
 )
 
 func main() {
 	defer glog.Flush()
 	glog.CopyStandardLogTo("info")
+
+	if *versionInfo {
+		fmt.Printf("-- //S/M k8s-deploy --\n")
+		version.PrintFull()
+	}
+
 	var kubeconfig *string
 	if home := homedir.HomeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
@@ -41,7 +52,7 @@ func main() {
 		TemplateDirectory:   *templateDirectoryPtr,
 		Staging:             *stagingPtr,
 		TeamvaultConfigPath: *teamvaultConfigPathPtr,
-		TeamvaultUrl:        *teamvaultUrlPtr,
+		TeamvaultUrl:        *teamvaultURLPtr,
 		TeamvaultUser:       *teamvaultUserPtr,
 		TeamvaultPassword:   *teamvaultPassPtr,
 		Kubeconfig:          *kubeconfig,
