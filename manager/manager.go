@@ -10,7 +10,7 @@ import (
 	"github.com/bborbe/k8s_deploy/finder"
 	"github.com/bborbe/k8s_deploy/k8s"
 	"github.com/bborbe/k8s_deploy/k8s/file"
-	"github.com/bborbe/k8s_deploy/k8s/remote_provider"
+	"github.com/bborbe/k8s_deploy/k8s/remote"
 	"github.com/bborbe/k8s_deploy/sync"
 	"github.com/bborbe/teamvault_utils/connector"
 	"github.com/bborbe/teamvault_utils/model"

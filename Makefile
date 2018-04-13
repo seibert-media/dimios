@@ -25,8 +25,9 @@ install:
 
 run:
 	k8s-deploy \
-	-dir=~/Documents/workspaces/kubernetes/manifests/netcup \
+	-dir=~/Documents/workspaces/kubernetes/manifests/netcup/template \
 	-namespace=debug \
+	-teamvault-config=~/.teamvault.json \
 	-logtostderr \
 	-v=4
 
