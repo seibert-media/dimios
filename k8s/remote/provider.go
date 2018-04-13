@@ -21,13 +21,19 @@ import (
 )
 
 type provider struct {
-	config *k8s_restclient.Config
+	config            *k8s_restclient.Config
+	discoveryClient   *k8s_discovery.DiscoveryClient
+	dynamicClientPool k8s_dynamic.ClientPool
 }
 
 // New remote provider with passed in rest config
-func New(config *k8s_restclient.Config) k8s.Provider {
+func New(
+	discoveryClient *k8s_discovery.DiscoveryClient,
+	dynamicClientPool k8s_dynamic.ClientPool,
+) k8s.Provider {
 	return &provider{
-		config: config,
+		discoveryClient:   discoveryClient,
+		dynamicClientPool: dynamicClientPool,
 	}
 }
 
@@ -35,12 +41,8 @@ func New(config *k8s_restclient.Config) k8s.Provider {
 func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, error) {
 	var result []k8s_runtime.Object
 	glog.V(4).Infof("get objects from k8s for namespace %s", namespace)
-	discoveryClient, err := k8s_discovery.NewDiscoveryClientForConfig(p.config)
-	if err != nil {
-		return nil, errors.Wrap(err, "creating k8s_discovery client failed")
-	}
-	dynamicClientPool := k8s_dynamic.NewDynamicClientPool(p.config)
-	resources, err := discoveryClient.ServerResources()
+
+	resources, err := p.discoveryClient.ServerResources()
 	if err != nil {
 		return nil, errors.Wrap(err, "get server resources failed")
 	}
@@ -76,7 +78,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 				return nil, errors.Wrapf(err, "get group version for kind %s failed", resource.Name)
 			}
 
-			client, err := dynamicClientPool.ClientForGroupVersionKind(groupVersionKind)
+			client, err := p.dynamicClientPool.ClientForGroupVersionKind(groupVersionKind)
 			if err != nil {
 				return nil, errors.Wrap(err, "get client for group")
 			}
@@ -133,7 +135,7 @@ func IsManaged(namespace k8s.Namespace, object k8s_runtime.Object) (bool, error)
 		}
 	}
 
-	for _, kind := range []string{"Node", "CertificateSigningRequest", "Event", "ServiceAccount"} {
+	for _, kind := range []string{"Node", "Endpoints", "CertificateSigningRequest", "Event", "ServiceAccount"} {
 		if obj.GetKind() == kind {
 			return false, nil
 		}

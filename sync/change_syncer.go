@@ -14,9 +14,6 @@ import (
 
 const channelSize = 10
 
-type applier func(context.Context, <-chan change.Change) error
-type getter func(context.Context, chan<- change.Change) error
-
 // Syncer is responsible for sending incoming changes to the apply function
 type Syncer interface {
 	Run(ctx context.Context) error
