@@ -44,7 +44,7 @@ func (f *Finder) Changes(ctx context.Context, c chan<- change.Change) error {
 func changes(fileObjects, remoteObjects []runtime.Object) []change.Change {
 	var result []change.Change
 	result = append(result, deleteChanges(fileObjects, remoteObjects)...)
-	result = append(result, createChanges(fileObjects, remoteObjects)...)
+	result = append(result, applyChanges(fileObjects)...)
 	glog.V(1).Infof("got %d changes to apply", len(result))
 	return result
 }
@@ -56,7 +56,6 @@ func deleteChanges(fileObjects, remoteObjects []runtime.Object) []change.Change 
 		if missing && existsIn(remoteObject, fileObjects) {
 			missing = false
 		}
-		glog.V(1).Infof("check %s for delete. missing: %v", k8s.ObjectToString(remoteObject), missing)
 		if missing {
 			result = append(result, change.Change{
 				Deleted: true,
@@ -67,19 +66,12 @@ func deleteChanges(fileObjects, remoteObjects []runtime.Object) []change.Change 
 	return result
 }
 
-func createChanges(fileObjects, remoteObjects []runtime.Object) []change.Change {
+func applyChanges(fileObjects []runtime.Object) []change.Change {
 	var result []change.Change
 	for _, fileObject := range fileObjects {
-		missing := true
-		if missing && existsIn(fileObject, remoteObjects) {
-			missing = false
-		}
-		glog.V(1).Infof("check %s for create. missing: %v", k8s.ObjectToString(fileObject), missing)
-		if missing {
-			result = append(result, change.Change{
-				Object: fileObject,
-			})
-		}
+		result = append(result, change.Change{
+			Object: fileObject,
+		})
 	}
 	return result
 }

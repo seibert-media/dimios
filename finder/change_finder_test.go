@@ -91,24 +91,21 @@ func TestExistsIn(t *testing.T) {
 	}
 }
 
-func TestCreateChanges(t *testing.T) {
+func TestApplyChanges(t *testing.T) {
 	a := createIngress("debug", "hello")
 	b := createIngress("debug", "world")
 	testCases := []struct {
-		name          string
-		fileObjects   []runtime.Object
-		remoteObjects []runtime.Object
-		expected      []change.Change
+		name        string
+		fileObjects []runtime.Object
+		expected    []change.Change
 	}{
-		{"empty", []runtime.Object{}, []runtime.Object{}, []change.Change{}},
-		{"no new", []runtime.Object{}, []runtime.Object{a}, []change.Change{}},
-		{"one new", []runtime.Object{a}, []runtime.Object{}, []change.Change{{Deleted: false, Object: a}}},
-		{"one new, one exists", []runtime.Object{a, b}, []runtime.Object{b}, []change.Change{{Deleted: false, Object: a}}},
-		{"two already exists", []runtime.Object{a, b}, []runtime.Object{b, a}, []change.Change{}},
+		{"no new", []runtime.Object{}, []change.Change{}},
+		{"one new", []runtime.Object{a}, []change.Change{{Deleted: false, Object: a}}},
+		{"two new", []runtime.Object{a, b}, []change.Change{{Deleted: false, Object: a}, {Deleted: false, Object: b}}},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := createChanges(tc.fileObjects, tc.remoteObjects)
+			result := applyChanges(tc.fileObjects)
 			if err := AssertThat(len(result), Is(len(tc.expected)).Message("length of result mismatch")); err != nil {
 				t.Fatal(err)
 			}
