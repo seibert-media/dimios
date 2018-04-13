@@ -33,9 +33,9 @@ func (f *Finder) Changes(ctx context.Context, c chan<- change.Change) error {
 		select {
 		case c <- change:
 			if glog.V(6) {
-				glog.Infof("added %v to channel", change)
+				glog.Infof("added %#v to channel", change.Object)
 			} else if glog.V(4) {
-				glog.Infof("added %s to channel", change.Object.GetObjectKind())
+				glog.Infof("added %s to channel", change.Object.GetObjectKind().GroupVersionKind().Kind)
 			}
 		case <-ctx.Done():
 			glog.V(3).Infoln("context done, skip add changes")
