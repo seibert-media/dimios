@@ -9,6 +9,7 @@ import (
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
+// ObjectToString for creating a string representation of Kubernetes runtime.Object
 func ObjectToString(object k8s_runtime.Object) string {
 	switch t := object.(type) {
 	case *k8s_appsv1.Deployment:
