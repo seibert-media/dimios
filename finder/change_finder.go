@@ -41,9 +41,11 @@ func (f *Finder) Run(ctx context.Context, c chan change.Change) error {
 	defer close(c)
 	var list []run.RunFunc
 	for _, namespace := range f.Namespaces {
-		list = append(list, func(ctx context.Context) error {
-			return f.changesForNamespace(ctx, c, namespace)
-		})
+		func(ctx context.Context, namespace k8s.Namespace) {
+			list = append(list, func(ctx context.Context) error {
+				return f.changesForNamespace(ctx, c, namespace)
+			})
+		}(ctx, namespace)
 	}
 	return run.CancelOnFirstError(ctx, list...)
 }
