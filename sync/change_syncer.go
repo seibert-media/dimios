@@ -21,7 +21,7 @@ type Syncer interface {
 
 // Handler interface for getting and applying changes
 type Handler interface {
-	Run(context.Context, change.Change) error
+	Run(context.Context, chan change.Change) error
 }
 
 type syncer struct {
