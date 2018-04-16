@@ -6,6 +6,13 @@ import (
 	. "github.com/bborbe/assert"
 )
 
+func TestNamespaceString(t *testing.T) {
+	n := Namespace("test")
+	if n.String() != "test" {
+		t.Error("string conversion failed")
+	}
+}
+
 func TestNamespacesFromCommaSeperatedList(t *testing.T) {
 	testCases := []struct {
 		name     string

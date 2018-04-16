@@ -17,35 +17,30 @@ import (
 	k8s_schema "k8s.io/apimachinery/pkg/runtime/schema"
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
-	k8s_restclient "k8s.io/client-go/rest"
 )
 
 // Applier for changes
 type Applier struct {
 	staging           bool
-	dynamicClientPool k8s_dynamic.ClientPool
 	discoveryClient   *k8s_discovery.DiscoveryClient
+	dynamicClientPool k8s_dynamic.ClientPool
 }
 
 // New Applier with clientset
 func New(
 	staging bool,
-	config *k8s_restclient.Config,
-) (*Applier, error) {
-	discoveryClient, err := k8s_discovery.NewDiscoveryClientForConfig(config)
-	if err != nil {
-		return nil, errors.Wrap(err, "creating k8s_discovery client failed")
-	}
-	dynamicClientPool := k8s_dynamic.NewDynamicClientPool(config)
+	discoveryClient *k8s_discovery.DiscoveryClient,
+	dynamicClientPool k8s_dynamic.ClientPool,
+) *Applier {
 	return &Applier{
 		staging:           staging,
 		dynamicClientPool: dynamicClientPool,
 		discoveryClient:   discoveryClient,
-	}, nil
+	}
 }
 
-// Apply changes being sent through the inbound channel
-func (c *Applier) Apply(ctx context.Context, changes <-chan change.Change) error {
+// Run applies changes received through the inbound channel
+func (c *Applier) Run(ctx context.Context, changes <-chan change.Change) error {
 	for {
 		select {
 		case v, ok := <-changes:
@@ -80,7 +75,7 @@ func (c *Applier) apply(ctx context.Context, change change.Change) error {
 
 	obj, err := createUnstructured(change)
 	if err != nil {
-		return errors.Wrap(err, "create unstructed failed")
+		return errors.Wrap(err, "create unstructured failed")
 	}
 
 	resource, err := c.getResource(change.Object.GetObjectKind().GroupVersionKind(), obj)

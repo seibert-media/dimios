@@ -19,7 +19,7 @@ func ObjectToString(object k8s_runtime.Object) string {
 	case *k8s_appsv1.Deployment:
 		return fmt.Sprintf("%s %s %s", typeof(object), t.Namespace, t.Name)
 	case *k8s_corev1.Namespace:
-		return fmt.Sprintf("%s %s %s", typeof(object), t.Name, t.Name)
+		return fmt.Sprintf("%s %s", typeof(object), t.Name)
 	}
 	return typeof(object)
 }

@@ -10,7 +10,7 @@ import (
 	. "github.com/bborbe/assert"
 	"github.com/seibert-media/k8s-deploy/change"
 	"k8s.io/api/extensions/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -23,10 +23,10 @@ func TestNew(t *testing.T) {
 
 func createIngress(ns, name string) runtime.Object {
 	return &v1beta1.Ingress{
-		TypeMeta: metav1.TypeMeta{
+		TypeMeta: k8s_metav1.TypeMeta{
 			Kind: "Ingress",
 		},
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: k8s_metav1.ObjectMeta{
 			Name:      name,
 			Namespace: ns,
 		},
@@ -35,10 +35,10 @@ func createIngress(ns, name string) runtime.Object {
 
 func createDeployment(ns, name string) runtime.Object {
 	return &v1beta1.Deployment{
-		TypeMeta: metav1.TypeMeta{
+		TypeMeta: k8s_metav1.TypeMeta{
 			Kind: "Deployment",
 		},
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: k8s_metav1.ObjectMeta{
 			Name:      name,
 			Namespace: ns,
 		},
@@ -109,7 +109,7 @@ func TestApplyChanges(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := applyChanges(tc.fileObjects)
+			result := additions(tc.fileObjects)
 			if err := AssertThat(len(result), Is(len(tc.expected)).Message("length of result mismatch")); err != nil {
 				t.Fatal(err)
 			}
@@ -141,7 +141,7 @@ func TestDeleteChanges(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := deleteChanges(tc.fileObjects, tc.remoteObjects)
+			result := deletions(tc.fileObjects, tc.remoteObjects)
 			if err := AssertThat(len(result), Is(len(tc.expected)).Message("length of result mismatch")); err != nil {
 				t.Fatal(err)
 			}

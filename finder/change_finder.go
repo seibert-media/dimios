@@ -6,7 +6,6 @@ package finder
 
 import (
 	"context"
-	"reflect"
 	"strings"
 
 	"github.com/bborbe/run"
@@ -14,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/seibert-media/k8s-deploy/change"
 	"github.com/seibert-media/k8s-deploy/k8s"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -25,15 +24,23 @@ type Finder struct {
 	Namespaces     []k8s.Namespace
 }
 
-type changeNamespace func(context.Context) error
+// New finder
+func New(file, remote k8s.Provider, namespaces []k8s.Namespace) *Finder {
+	return &Finder{
+		FileProvider:   file,
+		RemoteProvider: remote,
+		Namespaces:     namespaces,
+	}
+}
 
-// Changes writes all differences found to the channel until itself or context is done
-func (f *Finder) Changes(ctx context.Context, c chan<- change.Change) error {
+// Run writes all differences found to the channel until itself or context is done
+func (f *Finder) Run(ctx context.Context, c chan<- change.Change) error {
 	defer close(c)
 	var list []run.RunFunc
 	for _, namespace := range f.Namespaces {
+		n := namespace
 		list = append(list, func(ctx context.Context) error {
-			return f.changesForNamespace(ctx, c, namespace)
+			return f.changesForNamespace(ctx, c, n)
 		})
 	}
 	return run.CancelOnFirstError(ctx, list...)
@@ -44,35 +51,44 @@ func (f *Finder) changesForNamespace(ctx context.Context, c chan<- change.Change
 	if err != nil {
 		return errors.Wrap(err, "get file objects failed")
 	}
+
 	remoteObjects, err := f.RemoteProvider.GetObjects(namespace)
 	if err != nil {
 		return errors.Wrap(err, "get remote objects failed")
 	}
+
 	for _, change := range changes(fileObjects, remoteObjects) {
-		select {
-		case c <- change:
-			if glog.V(6) {
-				glog.Infof("added %#v to channel", change.Object)
-			} else if glog.V(4) {
-				glog.Infof("added %s to channel", change.Object.GetObjectKind().GroupVersionKind().Kind)
-			}
-		case <-ctx.Done():
-			glog.V(3).Infoln("context done, skip add changes")
+		if writeChangeOrCancel(ctx, c, change) {
 			return nil
 		}
 	}
 	return nil
 }
 
+func writeChangeOrCancel(ctx context.Context, c chan<- change.Change, change change.Change) bool {
+	select {
+	case c <- change:
+		if glog.V(6) {
+			glog.Infof("added %#v to channel", change.Object)
+		} else if glog.V(4) {
+			glog.Infof("added %s to channel", change.Object.GetObjectKind().GroupVersionKind().Kind)
+		}
+	case <-ctx.Done():
+		glog.V(3).Infoln("context done, skip add changes")
+		return true
+	}
+	return false
+}
+
 func changes(fileObjects, remoteObjects []runtime.Object) []change.Change {
 	var result []change.Change
-	result = append(result, deleteChanges(fileObjects, remoteObjects)...)
-	result = append(result, applyChanges(fileObjects)...)
+	result = append(result, deletions(fileObjects, remoteObjects)...)
+	result = append(result, additions(fileObjects)...)
 	glog.V(1).Infof("got %d changes to apply", len(result))
 	return result
 }
 
-func deleteChanges(fileObjects, remoteObjects []runtime.Object) []change.Change {
+func deletions(fileObjects, remoteObjects []runtime.Object) []change.Change {
 	var result []change.Change
 	for _, remoteObject := range remoteObjects {
 		missing := true
@@ -90,7 +106,7 @@ func deleteChanges(fileObjects, remoteObjects []runtime.Object) []change.Change 
 	return result
 }
 
-func applyChanges(fileObjects []runtime.Object) []change.Change {
+func additions(fileObjects []runtime.Object) []change.Change {
 	var result []change.Change
 	for _, fileObject := range fileObjects {
 		glog.V(2).Infof("apply %s", fileObject.GetObjectKind().GroupVersionKind().Kind)
@@ -118,13 +134,13 @@ func compare(a, b runtime.Object) bool {
 	if a.GetObjectKind().GroupVersionKind().Kind != b.GetObjectKind().GroupVersionKind().Kind {
 		return false
 	}
-	var a1, b1 metav1.Object
+	var a1, b1 k8s_metav1.Object
 	switch ta := a.(type) {
-	case metav1.Object:
+	case k8s_metav1.Object:
 		a1 = ta
 	}
 	switch tb := b.(type) {
-	case metav1.Object:
+	case k8s_metav1.Object:
 		b1 = tb
 	}
 	if a1 == nil || b1 == nil {
@@ -132,8 +148,4 @@ func compare(a, b runtime.Object) bool {
 	}
 	glog.V(6).Infof("name %s <> %s", a1.GetName(), b1.GetName())
 	return strings.Compare(a1.GetName(), b1.GetName()) == 0
-}
-
-func typeof(v interface{}) string {
-	return reflect.TypeOf(v).String()
 }
