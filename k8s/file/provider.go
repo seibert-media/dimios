@@ -9,8 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"github.com/bborbe/teamvault_utils/parser"
+	teamvault_parser "github.com/bborbe/teamvault_utils/parser"
 	"github.com/ghodss/yaml"
 	"github.com/golang/glog"
 	"github.com/seibert-media/k8s-deploy/k8s"
@@ -23,14 +22,14 @@ type walkFuncBuilder func([]k8s_runtime.Object) filepath.WalkFunc
 
 type provider struct {
 	templateDirectory TemplateDirectory
-	parser            parser.Parser
+	parser            teamvault_parser.Parser
 	walkFunc          walkFuncBuilder
 }
 
-// New file provider for directory using parser
+// New file provider for directory using Teamvault parser
 func New(
 	templateDirectory TemplateDirectory,
-	parser parser.Parser,
+	parser teamvault_parser.Parser,
 ) k8s.Provider {
 	p := &provider{
 		templateDirectory: templateDirectory,
@@ -53,8 +52,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 	}
 
 	var result []k8s_runtime.Object
-	err = filepath.Walk(dir.String(), p.walkFunc(result))
-	if err != nil {
+	if err = filepath.Walk(dir.String(), p.walkFunc(result)); err != nil {
 		return nil, fmt.Errorf("walk path failed: %v", err)
 	}
 
