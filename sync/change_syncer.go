@@ -14,34 +14,16 @@ import (
 
 const channelSize = 10
 
-// Syncer is responsible for sending incoming changes to the apply function
-type Syncer interface {
-	Run(context.Context) error
+type applier interface {
+	Run(context.Context, chan<- change.Change) error
 }
 
-// Handler interface for getting and applying changes
-type Handler interface {
-	Run(context.Context, chan change.Change) error
-}
-
-type syncer struct {
-	getter  Handler
-	applier Handler
-}
-
-// New Syncer taking get and apply functions
-func New(
-	getter Handler,
-	applier Handler,
-) Syncer {
-	return &syncer{
-		getter:  getter,
-		applier: applier,
-	}
+type getter interface {
+	Run(context.Context, <-chan change.Change) error
 }
 
 // Run the sync until one function errors
-func (c *syncer) Run(ctx context.Context) error {
+func Run(ctx context.Context, applier applier, getter getter) error {
 	glog.V(1).Info("sync changes started")
 	defer glog.V(1).Info("sync changes finished")
 	versionChannel := make(chan change.Change, channelSize)
@@ -49,11 +31,11 @@ func (c *syncer) Run(ctx context.Context) error {
 	return run.CancelOnFirstError(ctx,
 		// get changes
 		func(ctx context.Context) error {
-			return c.getter.Run(ctx, versionChannel)
+			return getter.Run(ctx, versionChannel)
 		},
 		// apply changes
 		func(ctx context.Context) error {
-			return c.applier.Run(ctx, versionChannel)
+			return applier.Run(ctx, versionChannel)
 		},
 	)
 }

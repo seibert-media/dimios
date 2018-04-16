@@ -97,20 +97,15 @@ func (m *Manager) Run(ctx context.Context) error {
 	)
 	remoteProvider := remote_provider.New(discovery, dynamicPool)
 
-	syncer := sync.New(
-		finder.New(
-			fileProvider,
-			remoteProvider,
-			k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
-		),
-		apply.New(
-			m.Staging,
-			discovery,
-			dynamicPool,
-		),
-	)
-
-	return syncer.Run(ctx)
+	return sync.Run(ctx, finder.New(
+		fileProvider,
+		remoteProvider,
+		k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
+	), apply.New(
+		m.Staging,
+		discovery,
+		dynamicPool,
+	))
 }
 
 func (m *Manager) createClientConfig() (*restclient.Config, error) {

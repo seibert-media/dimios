@@ -40,7 +40,7 @@ func New(
 }
 
 // Run applies changes received through the inbound channel
-func (c *Applier) Run(ctx context.Context, changes chan change.Change) error {
+func (c *Applier) Run(ctx context.Context, changes <-chan change.Change) error {
 	for {
 		select {
 		case v, ok := <-changes:

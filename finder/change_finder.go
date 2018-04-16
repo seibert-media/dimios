@@ -34,7 +34,7 @@ func New(file, remote k8s.Provider, namespaces []k8s.Namespace) *Finder {
 }
 
 // Run writes all differences found to the channel until itself or context is done
-func (f *Finder) Run(ctx context.Context, c chan change.Change) error {
+func (f *Finder) Run(ctx context.Context, c chan<- change.Change) error {
 	defer close(c)
 	var list []run.RunFunc
 	for _, namespace := range f.Namespaces {
