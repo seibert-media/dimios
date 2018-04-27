@@ -94,7 +94,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 				glog.V(4).Infof("extract items failed: %v", err)
 				continue
 			}
-			items, _ = filter.Filter(p.whitelist, items)
+			items = filter.Filter(p.whitelist, items)
 			for _, item := range items {
 				glog.V(6).Infof("found api object %s", k8s.ObjectToString(item))
 				is, err := IsManaged(namespace, item)

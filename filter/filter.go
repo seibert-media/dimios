@@ -5,7 +5,7 @@ import (
 	k8s_unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-func Filter(whitelist []string, k8sobjects []k8s_runtime.Object) ([]k8s_runtime.Object, error) {
+func Filter(whitelist []string, k8sobjects []k8s_runtime.Object) ([]k8s_runtime.Object) {
 	var filteredk8sobjects = []k8s_runtime.Object{}
 
 	for _, object := range k8sobjects {
@@ -20,7 +20,7 @@ func Filter(whitelist []string, k8sobjects []k8s_runtime.Object) ([]k8s_runtime.
 			filteredk8sobjects = append(filteredk8sobjects, obj)
 		}
 	}
-	return filteredk8sobjects, nil
+	return filteredk8sobjects
 }
 
 

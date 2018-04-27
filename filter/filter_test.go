@@ -29,18 +29,18 @@ var _ = Describe("Filter", func() {
 
 	Describe("Whitelistfilter", func() {
 		It("returns correct count of k8s objects with empty whitelist", func() {
-			var k8sdeployobjects, _ = Filter(Whitelist, K8sobjects)
+			var k8sdeployobjects = Filter(Whitelist, K8sobjects)
 			Expect(k8sdeployobjects).ToNot(BeNil())
 			Expect(len(k8sdeployobjects)).To(Equal(0))
 		})
 		It("returns correct count of k8s objects with whitelist deployment", func() {
 			Whitelist = append(Whitelist, "Deployment")
-			var k8sdeployobjects, _ = Filter(Whitelist, K8sobjects)
+			var k8sdeployobjects = Filter(Whitelist, K8sobjects)
 			Expect(len(k8sdeployobjects)).To(Equal(1))
 		})
 		It("returns correct count of k8s objects with whitelist deployment and ingress", func() {
 			Whitelist = append(Whitelist, "Deployment", "Ingress")
-			var k8sdeployobjects, _ = Filter(Whitelist, K8sobjects)
+			var k8sdeployobjects = Filter(Whitelist, K8sobjects)
 			Expect(len(k8sdeployobjects)).To(Equal(2))
 		})
 	})
