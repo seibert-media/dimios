@@ -49,12 +49,12 @@ func (c *Applier) Run(ctx context.Context, changes <-chan change.Change) error {
 				return nil
 			}
 			if glog.V(6) {
-				glog.Infof("added %#v to channel", v.Object)
+				glog.Infof("apply %#v to k8s", v.Object)
 			} else if glog.V(4) {
-				glog.Infof("added %s to channel", v.Object.GetObjectKind().GroupVersionKind().Kind)
+				glog.Infof("apply %s to k8s", v.Object.GetObjectKind().GroupVersionKind().Kind)
 			}
 			if err := c.apply(ctx, v); err != nil {
-				return fmt.Errorf("apply change failed: %v", err)
+				glog.Warningf("apply %s change failed: %v", v.Object.GetObjectKind().GroupVersionKind().Kind, err)
 			}
 		case <-ctx.Done():
 			glog.V(3).Infoln("context done, skip apply changes")
