@@ -32,16 +32,17 @@ type Syncer struct {
 func (s *Syncer) Run(ctx context.Context) error {
 	glog.V(1).Info("sync changes started")
 	defer glog.V(1).Info("sync changes finished")
-	versionChannel := make(chan Change, channelSize)
+	changes := make(chan Change, channelSize)
+	defer close(changes)
 
 	return run.CancelOnFirstError(ctx,
 		// get changes
 		func(ctx context.Context) error {
-			return s.Getter.Run(ctx, versionChannel)
+			return s.Getter.Run(ctx, changes)
 		},
 		// apply changes
 		func(ctx context.Context) error {
-			return s.Applier.Run(ctx, versionChannel)
+			return s.Applier.Run(ctx, changes)
 		},
 	)
 }
