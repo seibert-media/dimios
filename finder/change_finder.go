@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/seibert-media/dimios/change"
 	"github.com/seibert-media/dimios/k8s"
+	"github.com/seibert-media/dimios/whitelist"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -22,20 +23,26 @@ type Finder struct {
 	FileProvider   k8s.Provider
 	RemoteProvider k8s.Provider
 	Namespaces     []k8s.Namespace
+	Whitelist      whitelist.List
 }
 
 // New finder
-func New(file, remote k8s.Provider, namespaces []k8s.Namespace) *Finder {
+func New(
+	file k8s.Provider,
+	remote k8s.Provider,
+	namespaces []k8s.Namespace,
+	whitelist whitelist.List,
+) *Finder {
 	return &Finder{
 		FileProvider:   file,
 		RemoteProvider: remote,
 		Namespaces:     namespaces,
+		Whitelist:      whitelist,
 	}
 }
 
 // Run writes all differences found to the channel until itself or context is done
 func (f *Finder) Run(ctx context.Context, c chan<- change.Change) error {
-	defer close(c)
 	var list []run.RunFunc
 	for _, namespace := range f.Namespaces {
 		n := namespace
@@ -57,11 +64,22 @@ func (f *Finder) changesForNamespace(ctx context.Context, c chan<- change.Change
 		return errors.Wrap(err, "get remote objects failed")
 	}
 
+	glog.V(4).Infof("found %d file objects", len(fileObjects))
+	fileObjects = f.Whitelist.Filter(fileObjects)
+	glog.V(4).Infof("keep %d file objects after filter", len(fileObjects))
+
+	glog.V(4).Infof("found %d remote objects", len(remoteObjects))
+	remoteObjects = f.Whitelist.Filter(remoteObjects)
+	glog.V(4).Infof("keep %d remote objects after filter", len(remoteObjects))
+
+	glog.V(4).Infof("send changes to channel")
 	for _, change := range changes(fileObjects, remoteObjects) {
 		if writeChangeOrCancel(ctx, c, change) {
+			glog.V(2).Infof("write to channel canceled")
 			return nil
 		}
 	}
+	glog.V(4).Infof("all changes sent")
 	return nil
 }
 

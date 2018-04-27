@@ -30,9 +30,10 @@ import (
 	// Required for using GCP auth
 	"os"
 
-	"github.com/seibert-media/dimios/hook"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"github.com/bborbe/io/util"
+	"github.com/seibert-media/dimios/hook"
+	"github.com/seibert-media/dimios/whitelist"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
 // Manager is the main application package
@@ -98,13 +99,14 @@ func (m *Manager) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
 	fileProvider := file_provider.New(
 		file_provider.TemplateDirectory(m.TemplateDirectory),
 		m.createTeamvaultConfigParser(),
 	)
-	remoteProvider := remote_provider.New(discovery, dynamicPool, k8s.WhitelistFromCommaSeperatedList(m.Whitelist))
-
+	remoteProvider := remote_provider.New(
+		discovery,
+		dynamicPool,
+	)
 	applier := apply.New(
 		m.Staging,
 		discovery,
@@ -114,12 +116,12 @@ func (m *Manager) Run(ctx context.Context) error {
 		fileProvider,
 		remoteProvider,
 		k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
+		whitelist.ByString(m.Whitelist),
 	)
 	syncer := &change.Syncer{
 		Applier: applier,
 		Getter:  getter,
 	}
-
 	if m.Webhook {
 		server := &http.Server{
 			Addr: fmt.Sprintf(":%d", m.Port),
