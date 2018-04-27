@@ -125,8 +125,10 @@ func (m *Manager) Run(ctx context.Context) error {
 				Manager: syncer,
 			},
 		}
+		glog.V(1).Infof("start webserver on port %d", m.Port)
 		return server.ListenAndServe()
 	}
+	glog.V(1).Infof("run sync")
 	return syncer.Run(ctx)
 }
 

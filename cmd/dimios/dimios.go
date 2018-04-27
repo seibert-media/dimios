@@ -17,17 +17,17 @@ import (
 )
 
 var (
-	templateDirectoryPtr   = flag.String("dir", "", "Path to template directory")
-	namespacesPtr          = flag.String("namespaces", "", "list of kubernetes namespace separated by comma")
-	teamvaultURLPtr        = flag.String("teamvault-url", "", "teamvault url")
-	teamvaultUserPtr       = flag.String("teamvault-user", "", "teamvault user")
-	teamvaultPassPtr       = flag.String("teamvault-pass", "", "teamvault password")
-	teamvaultConfigPathPtr = flag.String("teamvault-config", "", "teamvault config")
-	stagingPtr             = flag.Bool("staging", false, "staging status")
-	versionInfo            = flag.Bool("version", false, "show version info")
-	kubeconfig             = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	port                   = flag.Int("port", 8080, "port listen on if webhook is activated")
-	webhook                = flag.Bool("webhook", false, "activate run as http server")
+	templateDirectory   = flag.String("dir", "", "Path to template directory")
+	namespaces          = flag.String("namespaces", "", "list of kubernetes namespace separated by comma")
+	teamvaultURL        = flag.String("teamvault-url", "", "teamvault url")
+	teamvaultUser       = flag.String("teamvault-user", "", "teamvault user")
+	teamvaultPass       = flag.String("teamvault-pass", "", "teamvault password")
+	teamvaultConfigPath = flag.String("teamvault-config", "", "teamvault config")
+	staging             = flag.Bool("staging", false, "staging status")
+	versionInfo         = flag.Bool("version", false, "show version info")
+	kubeconfig          = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	port                = flag.Int("port", 8080, "port listen on if webhook is activated")
+	webhook             = flag.Bool("webhook", false, "activate run as http server")
 )
 
 func main() {
@@ -43,13 +43,13 @@ func main() {
 	}
 
 	m := &manager.Manager{
-		Namespaces:          *namespacesPtr,
-		TemplateDirectory:   *templateDirectoryPtr,
-		Staging:             *stagingPtr,
-		TeamvaultConfigPath: *teamvaultConfigPathPtr,
-		TeamvaultURL:        *teamvaultURLPtr,
-		TeamvaultUser:       *teamvaultUserPtr,
-		TeamvaultPassword:   *teamvaultPassPtr,
+		Namespaces:          *namespaces,
+		TemplateDirectory:   *templateDirectory,
+		Staging:             *staging,
+		TeamvaultConfigPath: *teamvaultConfigPath,
+		TeamvaultURL:        *teamvaultURL,
+		TeamvaultUser:       *teamvaultUser,
+		TeamvaultPassword:   *teamvaultPass,
 		Kubeconfig:          *kubeconfig,
 		Webhook:             *webhook,
 		Port:                *port,
