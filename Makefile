@@ -50,6 +50,7 @@ deps:
 	go get -u github.com/bborbe/docker_utils/bin/docker_remote_tag_exists
 	go get -u github.com/haya14busa/goverage
 	go get -u github.com/schrej/godacov
+	go get -u github.com/maxbrunsfeld/counterfeiter
 
 # test entire repo
 test:
@@ -161,3 +162,7 @@ cover:
 	go get github.com/haya14busa/goverage
 	go get github.com/schrej/godacov
 	goverage -v -coverprofile=coverage.out $(shell go list ./... | grep -v /vendor/)
+
+generate:
+	@go get github.com/maxbrunsfeld/counterfeiter
+	@go generate ./...

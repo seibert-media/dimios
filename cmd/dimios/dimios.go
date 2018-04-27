@@ -17,16 +17,18 @@ import (
 )
 
 var (
-	templateDirectoryPtr   = flag.String("dir", "", "Path to template directory")
-	namespacesPtr          = flag.String("namespaces", "", "list of kubernetes namespace separated by comma")
-	whitelistPtr           = flag.String("whitelist", "", "list of objecttypes separated by comma")
-	teamvaultURLPtr        = flag.String("teamvault-url", "", "teamvault url")
-	teamvaultUserPtr       = flag.String("teamvault-user", "", "teamvault user")
-	teamvaultPassPtr       = flag.String("teamvault-pass", "", "teamvault password")
-	teamvaultConfigPathPtr = flag.String("teamvault-config", "", "teamvault config")
-	stagingPtr             = flag.Bool("staging", false, "staging status")
-	versionInfo            = flag.Bool("version", false, "show version info")
-	kubeconfig             = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	kubeconfig          = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	namespaces          = flag.String("namespaces", "", "list of kubernetes namespace separated by comma")
+	port                = flag.Int("port", 8080, "port listen on if webhook is activated")
+	staging             = flag.Bool("staging", false, "staging status")
+	teamvaultConfigPath = flag.String("teamvault-config", "", "teamvault config")
+	teamvaultPass       = flag.String("teamvault-pass", "", "teamvault password")
+	teamvaultURL        = flag.String("teamvault-url", "", "teamvault url")
+	teamvaultUser       = flag.String("teamvault-user", "", "teamvault user")
+	templateDirectory   = flag.String("dir", "", "Path to template directory")
+	versionInfo         = flag.Bool("version", false, "show version info")
+	webhook             = flag.Bool("webhook", false, "activate run as http server")
+	whitelistPtr        = flag.String("whitelist", "", "list of objecttypes separated by comma")
 )
 
 func main() {
@@ -42,15 +44,17 @@ func main() {
 	}
 
 	m := &manager.Manager{
-		Namespaces:          *namespacesPtr,
-		Whitelist:           *whitelistPtr,
-		TemplateDirectory:   *templateDirectoryPtr,
-		Staging:             *stagingPtr,
-		TeamvaultConfigPath: *teamvaultConfigPathPtr,
-		TeamvaultURL:        *teamvaultURLPtr,
-		TeamvaultUser:       *teamvaultUserPtr,
-		TeamvaultPassword:   *teamvaultPassPtr,
 		Kubeconfig:          *kubeconfig,
+		Namespaces:          *namespaces,
+		Port:                *port,
+		Staging:             *staging,
+		TeamvaultConfigPath: *teamvaultConfigPath,
+		TeamvaultPassword:   *teamvaultPass,
+		TeamvaultURL:        *teamvaultURL,
+		TeamvaultUser:       *teamvaultUser,
+		TemplateDirectory:   *templateDirectory,
+		Webhook:             *webhook,
+		Whitelist:           *whitelistPtr,
 	}
 
 	if err := m.ReadTeamvaultConfig(); err != nil {

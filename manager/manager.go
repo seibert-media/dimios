@@ -7,6 +7,7 @@ package manager
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/bborbe/http/client_builder"
@@ -16,18 +17,22 @@ import (
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"github.com/seibert-media/dimios/apply"
+	"github.com/seibert-media/dimios/change"
 	"github.com/seibert-media/dimios/finder"
 	"github.com/seibert-media/dimios/k8s"
 	file_provider "github.com/seibert-media/dimios/k8s/file"
 	remote_provider "github.com/seibert-media/dimios/k8s/remote"
-	"github.com/seibert-media/dimios/sync"
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
 	k8s_rest "k8s.io/client-go/rest"
 	k8s_clientcmd "k8s.io/client-go/tools/clientcmd"
 
 	// Required for using GCP auth
+	"os"
+
+	"github.com/seibert-media/dimios/hook"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"github.com/bborbe/io/util"
 )
 
 // Manager is the main application package
@@ -41,6 +46,8 @@ type Manager struct {
 	Namespaces          string
 	Whitelist           string
 	Kubeconfig          string
+	Webhook             bool
+	Port                int
 }
 
 // ReadTeamvaultConfig from path
@@ -67,7 +74,7 @@ func (m *Manager) Validate() error {
 	if len(m.Namespaces) == 0 {
 		return fmt.Errorf("namespace missing")
 	}
-	if len(m.Kubeconfig) == 0 {
+	if len(m.Kubeconfig) == 0 && os.Getenv("KUBERNETES_SERVICE_HOST") == "" && os.Getenv("KUBERNETES_SERVICE_PORT") == "" {
 		return fmt.Errorf("kubeconfig missing")
 	}
 	if len(m.TeamvaultURL) == 0 && !m.Staging {
@@ -98,20 +105,42 @@ func (m *Manager) Run(ctx context.Context) error {
 	)
 	remoteProvider := remote_provider.New(discovery, dynamicPool, k8s.WhitelistFromCommaSeperatedList(m.Whitelist))
 
-	return sync.Run(ctx, finder.New(
-		fileProvider,
-		remoteProvider,
-		k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
-	), apply.New(
+	applier := apply.New(
 		m.Staging,
 		discovery,
 		dynamicPool,
-	))
+	)
+	getter := finder.New(
+		fileProvider,
+		remoteProvider,
+		k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
+	)
+	syncer := &change.Syncer{
+		Applier: applier,
+		Getter:  getter,
+	}
+
+	if m.Webhook {
+		server := &http.Server{
+			Addr: fmt.Sprintf(":%d", m.Port),
+			Handler: &hook.Server{
+				Manager: syncer,
+			},
+		}
+		glog.V(1).Infof("start webserver on port %d", m.Port)
+		return server.ListenAndServe()
+	}
+	glog.V(1).Infof("run sync")
+	return syncer.Run(ctx)
 }
 
 func createConfig(kubeconfig string) (*k8s_rest.Config, error) {
 	if len(kubeconfig) > 0 {
 		glog.V(4).Infof("create kube config from flags")
+		kubeconfig, err := util.NormalizePath(kubeconfig)
+		if err != nil {
+			return nil, errors.Wrap(err, "normalize path failed")
+		}
 		return k8s_clientcmd.BuildConfigFromFlags("", kubeconfig)
 	}
 	glog.V(4).Infof("create in cluster kube config")
