@@ -11,6 +11,7 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 ## 1.1.0
 
 - Add Webhook
+- Add whitelist for kind to manage
 
 ## 1.0.0
 
