@@ -40,6 +40,8 @@ type Manager struct {
 	TeamvaultConfigPath string
 	Namespaces          string
 	Kubeconfig          string
+	Webhook             bool
+	Port                int
 }
 
 // ReadTeamvaultConfig from path

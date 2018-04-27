@@ -67,6 +67,19 @@ unknown - version unknown
 			Expect(resp.StatusCode).To(Equal(http.StatusOK))
 		})
 	})
+	Context("when called without parameter webhook", func() {
+		args := []string{}
+		It("webserver will not be started", func() {
+			port, err := freePort()
+			Expect(err).To(BeNil())
+			args = append(args, fmt.Sprintf("-port=%d", port))
+			serverSession, err = gexec.Start(exec.Command(pathToServerBinary, args...), GinkgoWriter, GinkgoWriter)
+			Expect(err).To(BeNil())
+			waitUntilPortIsOpen(port, time.Second)
+			_, err = http.Get(fmt.Sprintf("http://localhost:%d", port))
+			Expect(err).NotTo(BeNil())
+		})
+	})
 })
 
 func TestSystem(t *testing.T) {

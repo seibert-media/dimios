@@ -43,10 +43,12 @@ func main() {
 		os.Exit(0)
 	}
 
-	http.HandleFunc("/", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+	if *webhook {
+		http.HandleFunc("/", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
 
-	}))
-	http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
+		}))
+		http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
+	}
 
 	m := &manager.Manager{
 		Namespaces:          *namespacesPtr,
@@ -57,6 +59,8 @@ func main() {
 		TeamvaultUser:       *teamvaultUserPtr,
 		TeamvaultPassword:   *teamvaultPassPtr,
 		Kubeconfig:          *kubeconfig,
+		Webhook:             *webhook,
+		Port:                *port,
 	}
 
 	if err := m.ReadTeamvaultConfig(); err != nil {
