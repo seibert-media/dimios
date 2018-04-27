@@ -56,12 +56,12 @@ func (f *Finder) Run(ctx context.Context, c chan<- change.Change) error {
 func (f *Finder) changesForNamespace(ctx context.Context, c chan<- change.Change, namespace k8s.Namespace) error {
 	fileObjects, err := f.FileProvider.GetObjects(namespace)
 	if err != nil {
-		return errors.Wrap(err, "get file objects failed")
+		return errors.Wrapf(err, "get file objects failed for namespace %s", namespace)
 	}
 
 	remoteObjects, err := f.RemoteProvider.GetObjects(namespace)
 	if err != nil {
-		return errors.Wrap(err, "get remote objects failed")
+		return errors.Wrapf(err, "get remote objects failed for namespace %s", namespace)
 	}
 
 	glog.V(4).Infof("found %d file objects", len(fileObjects))

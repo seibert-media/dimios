@@ -63,7 +63,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 
 		content, err = p.parser.Parse(content)
 		if err != nil {
-			return fmt.Errorf("parse content failed: %v", err)
+			return fmt.Errorf("parse content of file %s failed: %v", path, err)
 		}
 		if glog.V(6) {
 			glog.Infof("yaml %s", content)
@@ -71,26 +71,25 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 
 		content, err = yaml.YAMLToJSON(content)
 		if err != nil {
-			return fmt.Errorf("yaml to json failed: %v", err)
+			return fmt.Errorf("convert yaml to json for file %s failed: %v", path, err)
 		}
 		if glog.V(6) {
 			glog.Infof("json %s", content)
 		}
 
-		glog.V(4).Infof("parse teamvault secrets to content completed")
 		obj, err := kind(content)
 		if err != nil {
-			return fmt.Errorf("create object by content failed: %v", err)
+			return fmt.Errorf("create object by content for file %s failed: %v", path, err)
 		}
 
 		glog.V(4).Infof("found kind %v", obj.GetObjectKind())
 		if obj, _, err = k8s_unstructured.UnstructuredJSONScheme.Decode(content, nil, obj); err != nil {
-			return fmt.Errorf("unmarshal to object failed: %v", err)
+			return fmt.Errorf("unmarshal to object for file %s failed: %v", path, err)
 		}
 
-		glog.V(2).Infof("found file object %s", k8s.ObjectToString(obj))
+		glog.V(2).Infof("found object %s in file %s", k8s.ObjectToString(obj), path)
 		result = append(result, obj)
-		glog.V(4).Infof("add object to result")
+		glog.V(4).Infof("add object to result for file %s", path)
 		return nil
 	})
 	if err != nil {
