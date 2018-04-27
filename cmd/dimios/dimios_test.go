@@ -5,16 +5,17 @@
 package main_test
 
 import (
+	"fmt"
+	"net"
+	"net/http"
 	"os/exec"
 	"testing"
 	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
-	"net/http"
-	"net"
-	"fmt"
 )
 
 var pathToServerBinary string

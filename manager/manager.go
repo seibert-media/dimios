@@ -7,6 +7,7 @@ package manager
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/bborbe/http/client_builder"
@@ -16,11 +17,11 @@ import (
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"github.com/seibert-media/dimios/apply"
+	"github.com/seibert-media/dimios/change"
 	"github.com/seibert-media/dimios/finder"
 	"github.com/seibert-media/dimios/k8s"
 	file_provider "github.com/seibert-media/dimios/k8s/file"
 	remote_provider "github.com/seibert-media/dimios/k8s/remote"
-	"github.com/seibert-media/dimios/sync"
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
 	k8s_rest "k8s.io/client-go/rest"
@@ -99,15 +100,29 @@ func (m *Manager) Run(ctx context.Context) error {
 	)
 	remoteProvider := remote_provider.New(discovery, dynamicPool)
 
-	return sync.Run(ctx, finder.New(
-		fileProvider,
-		remoteProvider,
-		k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
-	), apply.New(
+	if m.Webhook {
+		http.HandleFunc("/", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+
+		}))
+		return http.ListenAndServe(fmt.Sprintf(":%d", m.Port), nil)
+	}
+
+	applier := apply.New(
 		m.Staging,
 		discovery,
 		dynamicPool,
-	))
+	)
+	getter := finder.New(
+		fileProvider,
+		remoteProvider,
+		k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
+	)
+	syncer := change.Syncer{
+		Applier: applier,
+		Getter:  getter,
+	}
+
+	return syncer.Run(ctx)
 }
 
 func createConfig(kubeconfig string) (*k8s_rest.Config, error) {
