@@ -56,12 +56,12 @@ func (f *Finder) Run(ctx context.Context, c chan<- change.Change) error {
 func (f *Finder) changesForNamespace(ctx context.Context, c chan<- change.Change, namespace k8s.Namespace) error {
 	fileObjects, err := f.FileProvider.GetObjects(namespace)
 	if err != nil {
-		return errors.Wrap(err, "get file objects failed")
+		return errors.Wrapf(err, "get file objects failed for namespace %s", namespace)
 	}
 
 	remoteObjects, err := f.RemoteProvider.GetObjects(namespace)
 	if err != nil {
-		return errors.Wrap(err, "get remote objects failed")
+		return errors.Wrapf(err, "get remote objects failed for namespace %s", namespace)
 	}
 
 	glog.V(4).Infof("found %d file objects", len(fileObjects))
@@ -73,9 +73,11 @@ func (f *Finder) changesForNamespace(ctx context.Context, c chan<- change.Change
 	glog.V(4).Infof("keep %d remote objects after filter", len(remoteObjects))
 
 	glog.V(4).Infof("send changes to channel")
-	for _, change := range changes(fileObjects, remoteObjects) {
+	changeList := changes(fileObjects, remoteObjects)
+	glog.V(1).Infof("got %d changes to apply for namespace %s", len(changeList), namespace)
+	for _, change := range changeList {
 		if writeChangeOrCancel(ctx, c, change) {
-			glog.V(2).Infof("write to channel canceled")
+			glog.V(2).Infof("write change to channel canceled for namespace %s", namespace)
 			return nil
 		}
 	}
@@ -102,7 +104,6 @@ func changes(fileObjects, remoteObjects []runtime.Object) []change.Change {
 	var result []change.Change
 	result = append(result, deletions(fileObjects, remoteObjects)...)
 	result = append(result, additions(fileObjects)...)
-	glog.V(1).Infof("got %d changes to apply", len(result))
 	return result
 }
 

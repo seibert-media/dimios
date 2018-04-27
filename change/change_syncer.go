@@ -8,10 +8,7 @@ import (
 	"context"
 
 	"github.com/bborbe/run"
-	"github.com/golang/glog"
 )
-
-const channelSize = 10
 
 //go:generate counterfeiter -o ../mocks/applier.go --fake-name Applier . applier
 type applier interface {
@@ -26,23 +23,19 @@ type getter interface {
 type Syncer struct {
 	Applier applier
 	Getter  getter
+	Changes chan Change
 }
 
 // Run the sync until one function errors
 func (s *Syncer) Run(ctx context.Context) error {
-	glog.V(1).Info("sync changes started")
-	defer glog.V(1).Info("sync changes finished")
-	changes := make(chan Change, channelSize)
-	defer close(changes)
-
 	return run.CancelOnFirstError(ctx,
 		// get changes
 		func(ctx context.Context) error {
-			return s.Getter.Run(ctx, changes)
+			return s.Getter.Run(ctx, s.Changes)
 		},
 		// apply changes
 		func(ctx context.Context) error {
-			return s.Applier.Run(ctx, changes)
+			return s.Applier.Run(ctx, s.Changes)
 		},
 	)
 }

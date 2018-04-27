@@ -36,6 +36,8 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
+const channelSize = 10
+
 // Manager is the main application package
 type Manager struct {
 	Staging             bool
@@ -92,8 +94,7 @@ func (m *Manager) Validate() error {
 
 // Run Manager
 func (m *Manager) Run(ctx context.Context) error {
-	glog.V(0).Info("kubernetes-manager started")
-	defer glog.V(0).Info("kubernetes-manager finished")
+	glog.V(0).Info("dimios started")
 
 	discovery, dynamicPool, err := m.createClients()
 	if err != nil {
@@ -118,9 +119,13 @@ func (m *Manager) Run(ctx context.Context) error {
 		k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
 		whitelist.ByString(m.Whitelist),
 	)
+	changes := make(chan change.Change, channelSize)
+	defer close(changes)
+
 	syncer := &change.Syncer{
 		Applier: applier,
 		Getter:  getter,
+		Changes: changes,
 	}
 	if m.Webhook {
 		server := &http.Server{
@@ -133,7 +138,12 @@ func (m *Manager) Run(ctx context.Context) error {
 		return server.ListenAndServe()
 	}
 	glog.V(1).Infof("run sync")
-	return syncer.Run(ctx)
+	if err := syncer.Run(ctx); err != nil {
+		glog.V(0).Infof("dimios failed: %v", err)
+		return err
+	}
+	glog.V(0).Info("dimios completed successful")
+	return nil
 }
 
 func createConfig(kubeconfig string) (*k8s_rest.Config, error) {

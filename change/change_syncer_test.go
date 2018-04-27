@@ -30,6 +30,7 @@ var _ = Describe("Syncer", func() {
 		syncer = &change.Syncer{
 			Applier: applier,
 			Getter:  getter,
+			Changes: make(chan change.Change, 10),
 		}
 	})
 

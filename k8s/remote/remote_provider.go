@@ -113,7 +113,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 			}
 		}
 	}
-	glog.V(1).Infof("read api completed. found %d objects in namespace %s", len(result), namespace)
+	glog.V(1).Infof("found in api %d objects for namespace %s", len(result), namespace)
 	return result, nil
 }
 

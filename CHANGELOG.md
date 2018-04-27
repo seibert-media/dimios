@@ -8,6 +8,11 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 * MINOR version when you add functionality in a backwards-compatible manner, and
 * PATCH version when you make backwards-compatible bug fixes.
 
+## 1.1.4
+
+- Fix channel and improve error handling
+- Log warning about apply errors and continue
+
 ## 1.1.3
 
 - Apply whitelist only if more than one element 
