@@ -9,8 +9,8 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	"github.com/seibert-media/dimios/filter"
 	"github.com/seibert-media/dimios/k8s"
+	"github.com/seibert-media/dimios/whitelist"
 	k8s_meta "k8s.io/apimachinery/pkg/api/meta"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s_unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -23,14 +23,14 @@ import (
 type provider struct {
 	discoveryClient   *k8s_discovery.DiscoveryClient
 	dynamicClientPool k8s_dynamic.ClientPool
-	whitelist         []string
+	whitelist         whitelist.List
 }
 
 // New remote provider with passed in rest config
 func New(
 	discoveryClient *k8s_discovery.DiscoveryClient,
 	dynamicClientPool k8s_dynamic.ClientPool,
-	whitelist []string,
+	whitelist whitelist.List,
 ) k8s.Provider {
 	return &provider{
 		discoveryClient:   discoveryClient,
@@ -103,9 +103,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 
 			glog.V(4).Infof("found %d items in kind %s", len(items), resource.Kind)
 
-			if len(p.whitelist) > 0 {
-				items = filter.Filter(p.whitelist, items)
-			}
+			items = p.whitelist.Filter(items)
 
 			glog.V(4).Infof("keep %d items after whitelist", len(items))
 

@@ -47,7 +47,7 @@ var _ = Describe("Manager", func() {
 	})
 })
 
-func TestSync(t *testing.T) {
+func TestManager(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Manager Test Suite")
 }

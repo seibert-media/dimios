@@ -30,9 +30,10 @@ import (
 	// Required for using GCP auth
 	"os"
 
-	"github.com/seibert-media/dimios/hook"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"github.com/bborbe/io/util"
+	"github.com/seibert-media/dimios/hook"
+	"github.com/seibert-media/dimios/whitelist"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
 // Manager is the main application package
@@ -103,7 +104,11 @@ func (m *Manager) Run(ctx context.Context) error {
 		file_provider.TemplateDirectory(m.TemplateDirectory),
 		m.createTeamvaultConfigParser(),
 	)
-	remoteProvider := remote_provider.New(discovery, dynamicPool, k8s.WhitelistFromCommaSeperatedList(m.Whitelist))
+	remoteProvider := remote_provider.New(
+		discovery,
+		dynamicPool,
+		whitelist.ByString(m.Whitelist),
+	)
 
 	applier := apply.New(
 		m.Staging,
