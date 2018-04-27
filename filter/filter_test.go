@@ -2,6 +2,7 @@ package filter
 
 import (
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -11,12 +12,10 @@ var _ = Describe("Filter", func() {
 		K8sobjects = []k8s_runtime.Object{}
 	)
 
-	BeforeEach(func() {
-	})
-
 	Describe("Whitelistfilter", func() {
 		It("returns correct count of k8s objects", func() {
-			_ = Filter(Whitelist, K8sobjects)
+			var k8sdeployobjects = Filter(Whitelist, K8sobjects)
+			Expect(k8sdeployobjects).ToNot(BeNil())
 		})
 	})
 })
