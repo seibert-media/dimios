@@ -5,16 +5,17 @@
 package hook_test
 
 import (
+	"errors"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"net/http"
-	"github.com/seibert-media/dimios/hook"
-	"net/http/httptest"
-	"github.com/seibert-media/dimios/mocks"
-	"errors"
 	"github.com/onsi/gomega/gbytes"
-	"io/ioutil"
+	"github.com/seibert-media/dimios/hook"
+	"github.com/seibert-media/dimios/mocks"
 )
 
 var _ = Describe("Server", func() {

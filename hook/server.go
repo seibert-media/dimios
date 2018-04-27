@@ -1,9 +1,9 @@
 package hook
 
 import (
-	"net/http"
 	"context"
 	"fmt"
+	"net/http"
 )
 
 //go:generate counterfeiter -o ../mocks/manager.go --fake-name Manager . manager
