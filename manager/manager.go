@@ -39,6 +39,7 @@ type Manager struct {
 	TeamvaultPassword   string
 	TeamvaultConfigPath string
 	Namespaces          string
+	Whitelist			string
 	Kubeconfig          string
 }
 

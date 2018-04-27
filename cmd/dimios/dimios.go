@@ -19,6 +19,7 @@ import (
 var (
 	templateDirectoryPtr   = flag.String("dir", "", "Path to template directory")
 	namespacesPtr          = flag.String("namespaces", "", "list of kubernetes namespace separated by comma")
+	whitelistPtr           = flag.String("whitelist", "", "list of objecttypes separated by comma")
 	teamvaultURLPtr        = flag.String("teamvault-url", "", "teamvault url")
 	teamvaultUserPtr       = flag.String("teamvault-user", "", "teamvault user")
 	teamvaultPassPtr       = flag.String("teamvault-pass", "", "teamvault password")
@@ -42,6 +43,7 @@ func main() {
 
 	m := &manager.Manager{
 		Namespaces:          *namespacesPtr,
+		Whitelist:			 *whitelistPtr,
 		TemplateDirectory:   *templateDirectoryPtr,
 		Staging:             *stagingPtr,
 		TeamvaultConfigPath: *teamvaultConfigPathPtr,
