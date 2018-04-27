@@ -60,24 +60,27 @@ func (f *Finder) changesForNamespace(ctx context.Context, c chan<- change.Change
 		return errors.Wrap(err, "get file objects failed")
 	}
 
-	glog.V(4).Infof("found %d file objects", len(fileObjects))
-	fileObjects = f.Whitelist.Filter(fileObjects)
-	glog.V(4).Infof("keep %d file objects after filter", len(fileObjects))
-
 	remoteObjects, err := f.RemoteProvider.GetObjects(namespace)
 	if err != nil {
 		return errors.Wrap(err, "get remote objects failed")
 	}
 
+	glog.V(4).Infof("found %d file objects", len(fileObjects))
+	fileObjects = f.Whitelist.Filter(fileObjects)
+	glog.V(4).Infof("keep %d file objects after filter", len(fileObjects))
+
 	glog.V(4).Infof("found %d remote objects", len(remoteObjects))
 	remoteObjects = f.Whitelist.Filter(remoteObjects)
 	glog.V(4).Infof("keep %d remote objects after filter", len(remoteObjects))
 
+	glog.V(4).Infof("send changes to channel")
 	for _, change := range changes(fileObjects, remoteObjects) {
 		if writeChangeOrCancel(ctx, c, change) {
+			glog.V(2).Infof("write to channel canceled")
 			return nil
 		}
 	}
+	glog.V(4).Infof("all changes sent")
 	return nil
 }
 
