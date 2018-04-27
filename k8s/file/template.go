@@ -1,4 +1,4 @@
-// Copyright 2018 The K8s-Deploy Authors. All rights reserved.
+// Copyright 2018 The Dimios Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,7 +8,7 @@ import (
 	"path"
 
 	io_util "github.com/bborbe/io/util"
-	"github.com/seibert-media/k8s-deploy/k8s"
+	"github.com/seibert-media/dimios/k8s"
 )
 
 // TemplateDirectory for all namespaces

@@ -11,11 +11,11 @@
 # Parts of this makefile are based upon github.com/kolide/kit
 #
 
-NAME		:= k8s-deploy
+NAME		:= dimios
 REPO		:= seibert-media
 GIT_HOST	:= github.com
 REGISTRY	:= quay.io
-IMAGE		:= seibertmedia/k8s-deploy
+IMAGE		:= seibertmedia/dimios
 
 PATH 		:= $(GOPATH)/bin:$(PATH)
 
@@ -62,7 +62,7 @@ install:
 
 # run tool
 run:
-	k8s-deploy \
+	dimios \
 	-dir=$(MANIFEST_DIR) \
 	-namespaces=$(NAMESPACES) \
 	-teamvault-config=~/.teamvault-sm.json \

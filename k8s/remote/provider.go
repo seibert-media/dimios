@@ -1,4 +1,4 @@
-// Copyright 2018 The K8s-Deploy Authors. All rights reserved.
+// Copyright 2018 The Dimios Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -9,7 +9,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	"github.com/seibert-media/k8s-deploy/k8s"
+	"github.com/seibert-media/dimios/k8s"
 	k8s_meta "k8s.io/apimachinery/pkg/api/meta"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s_unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -107,7 +107,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 	return result, nil
 }
 
-// IsManaged by k8s-deploy
+// IsManaged by dimios
 func IsManaged(namespace k8s.Namespace, object k8s_runtime.Object) (bool, error) {
 	u, err := k8s_runtime.DefaultUnstructuredConverter.ToUnstructured(object)
 	if err != nil {

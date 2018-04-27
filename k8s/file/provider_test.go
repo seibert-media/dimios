@@ -1,4 +1,4 @@
-// Copyright 2018 The K8s-Deploy Authors. All rights reserved.
+// Copyright 2018 The Dimios Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -13,7 +13,7 @@ import (
 
 	. "github.com/bborbe/assert"
 	"github.com/bborbe/teamvault_utils/parser"
-	"github.com/seibert-media/k8s-deploy/k8s"
+	"github.com/seibert-media/dimios/k8s"
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
