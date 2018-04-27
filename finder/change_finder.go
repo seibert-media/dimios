@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/seibert-media/dimios/change"
 	"github.com/seibert-media/dimios/k8s"
+	"github.com/seibert-media/dimios/whitelist"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -22,14 +23,21 @@ type Finder struct {
 	FileProvider   k8s.Provider
 	RemoteProvider k8s.Provider
 	Namespaces     []k8s.Namespace
+	Whitelist      whitelist.List
 }
 
 // New finder
-func New(file, remote k8s.Provider, namespaces []k8s.Namespace) *Finder {
+func New(
+	file k8s.Provider,
+	remote k8s.Provider,
+	namespaces []k8s.Namespace,
+	whitelist whitelist.List,
+) *Finder {
 	return &Finder{
 		FileProvider:   file,
 		RemoteProvider: remote,
 		Namespaces:     namespaces,
+		Whitelist:      whitelist,
 	}
 }
 
@@ -52,10 +60,18 @@ func (f *Finder) changesForNamespace(ctx context.Context, c chan<- change.Change
 		return errors.Wrap(err, "get file objects failed")
 	}
 
+	glog.V(4).Infof("found %d file objects")
+	fileObjects = f.Whitelist.Filter(fileObjects)
+	glog.V(4).Infof("keep %d file objects after filter")
+
 	remoteObjects, err := f.RemoteProvider.GetObjects(namespace)
 	if err != nil {
 		return errors.Wrap(err, "get remote objects failed")
 	}
+
+	glog.V(4).Infof("found %d remote objects")
+	remoteObjects = f.Whitelist.Filter(remoteObjects)
+	glog.V(4).Infof("keep %d remote objects after filter")
 
 	for _, change := range changes(fileObjects, remoteObjects) {
 		if writeChangeOrCancel(ctx, c, change) {

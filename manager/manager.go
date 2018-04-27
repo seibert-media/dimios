@@ -99,7 +99,6 @@ func (m *Manager) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
 	fileProvider := file_provider.New(
 		file_provider.TemplateDirectory(m.TemplateDirectory),
 		m.createTeamvaultConfigParser(),
@@ -107,9 +106,7 @@ func (m *Manager) Run(ctx context.Context) error {
 	remoteProvider := remote_provider.New(
 		discovery,
 		dynamicPool,
-		whitelist.ByString(m.Whitelist),
 	)
-
 	applier := apply.New(
 		m.Staging,
 		discovery,
@@ -119,12 +116,12 @@ func (m *Manager) Run(ctx context.Context) error {
 		fileProvider,
 		remoteProvider,
 		k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
+		whitelist.ByString(m.Whitelist),
 	)
 	syncer := &change.Syncer{
 		Applier: applier,
 		Getter:  getter,
 	}
-
 	if m.Webhook {
 		server := &http.Server{
 			Addr: fmt.Sprintf(":%d", m.Port),
