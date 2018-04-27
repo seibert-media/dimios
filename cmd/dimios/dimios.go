@@ -9,10 +9,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
+
 	"github.com/golang/glog"
 	"github.com/kolide/kit/version"
 	"github.com/seibert-media/dimios/manager"
-	"runtime"
 )
 
 var (
@@ -34,7 +35,7 @@ func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	if *versionInfo {
-		fmt.Printf("-- //S/M Dimios --\n")
+		fmt.Printf("-- Dimios --\n")
 		version.PrintFull()
 		os.Exit(0)
 	}
