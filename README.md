@@ -1,6 +1,6 @@
 # Dimios Kubernetes Manager
 [![Go Report Card](https://goreportcard.com/badge/github.com/seibert-media/dimios)](https://goreportcard.com/report/github.com/seibert-media/dimios)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/513590eff4e54095a25b66bf65bd1323)](https://www.codacy.com/app/kwiesmueller/dimios?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=seibert-media/dimios&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/513590eff4e54095a25b66bf65bd1323)](https://www.codacy.com/app/seibert-media/dimios?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=seibert-media/dimios&amp;utm_campaign=Badge_Grade)
 [![Build Status](https://travis-ci.org/seibert-media/dimios.svg?branch=master)](https://travis-ci.org/seibert-media/dimios)
 [![Docker Repository on Quay](https://quay.io/repository/seibertmedia/dimios/status "Docker Repository on Quay")](https://quay.io/repository/seibertmedia/dimios)
 

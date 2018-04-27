@@ -23,8 +23,8 @@ import (
 	"github.com/seibert-media/dimios/sync"
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
-	restclient "k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
+	k8s_rest "k8s.io/client-go/rest"
+	k8s_clientcmd "k8s.io/client-go/tools/clientcmd"
 
 	// Required for using GCP auth
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -108,16 +108,17 @@ func (m *Manager) Run(ctx context.Context) error {
 	))
 }
 
-func (m *Manager) createClientConfig() (*restclient.Config, error) {
-	config, err := clientcmd.BuildConfigFromFlags("", m.Kubeconfig)
-	if err != nil {
-		return nil, fmt.Errorf("build config from flags failed: %v", err)
+func createConfig(kubeconfig string) (*k8s_rest.Config, error) {
+	if len(kubeconfig) > 0 {
+		glog.V(4).Infof("create kube config from flags")
+		return k8s_clientcmd.BuildConfigFromFlags("", kubeconfig)
 	}
-	return config, nil
+	glog.V(4).Infof("create in cluster kube config")
+	return k8s_rest.InClusterConfig()
 }
 
 func (m *Manager) createClients() (*k8s_discovery.DiscoveryClient, k8s_dynamic.ClientPool, error) {
-	cfg, err := m.createClientConfig()
+	cfg, err := createConfig(m.Kubeconfig)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "create clientConfig failed")
 	}
