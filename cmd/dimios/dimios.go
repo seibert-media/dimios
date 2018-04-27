@@ -43,7 +43,7 @@ func main() {
 
 	m := &manager.Manager{
 		Namespaces:          *namespacesPtr,
-		Whitelist:			 *whitelistPtr,
+		Whitelist:           *whitelistPtr,
 		TemplateDirectory:   *templateDirectoryPtr,
 		Staging:             *stagingPtr,
 		TeamvaultConfigPath: *teamvaultConfigPathPtr,

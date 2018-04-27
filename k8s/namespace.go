@@ -26,6 +26,7 @@ func NamespacesFromCommaSeperatedList(list string) []Namespace {
 	return NamespacesFromList(strings.Split(list, ","))
 }
 
+// WhitelistFromCommaSeperatedList returns a list of whitelist entries parsed from string
 func WhitelistFromCommaSeperatedList(list string) []string {
 	return strings.Split(list, ",")
 }
