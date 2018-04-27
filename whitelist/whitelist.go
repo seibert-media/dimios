@@ -18,6 +18,7 @@ func (e Entry) String() string {
 	return string(e)
 }
 
+// Equals return true if name is equals.
 func (e Entry) Equals(a Entry) bool {
 	return e.String() == a.String()
 }
