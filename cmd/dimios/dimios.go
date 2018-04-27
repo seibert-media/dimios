@@ -17,18 +17,18 @@ import (
 )
 
 var (
-	templateDirectory   = flag.String("dir", "", "Path to template directory")
+	kubeconfig          = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	namespaces          = flag.String("namespaces", "", "list of kubernetes namespace separated by comma")
+	port                = flag.Int("port", 8080, "port listen on if webhook is activated")
+	staging             = flag.Bool("staging", false, "staging status")
+	teamvaultConfigPath = flag.String("teamvault-config", "", "teamvault config")
+	teamvaultPass       = flag.String("teamvault-pass", "", "teamvault password")
 	teamvaultURL        = flag.String("teamvault-url", "", "teamvault url")
 	teamvaultUser       = flag.String("teamvault-user", "", "teamvault user")
-	teamvaultPass       = flag.String("teamvault-pass", "", "teamvault password")
-	teamvaultConfigPath = flag.String("teamvault-config", "", "teamvault config")
-	staging             = flag.Bool("staging", false, "staging status")
+	templateDirectory   = flag.String("dir", "", "Path to template directory")
 	versionInfo         = flag.Bool("version", false, "show version info")
-	kubeconfig          = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	port                = flag.Int("port", 8080, "port listen on if webhook is activated")
 	webhook             = flag.Bool("webhook", false, "activate run as http server")
-	whitelistPtr           = flag.String("whitelist", "", "list of objecttypes separated by comma")
+	whitelistPtr        = flag.String("whitelist", "", "list of objecttypes separated by comma")
 )
 
 func main() {
@@ -44,16 +44,16 @@ func main() {
 	}
 
 	m := &manager.Manager{
+		Kubeconfig:          *kubeconfig,
 		Namespaces:          *namespaces,
-		TemplateDirectory:   *templateDirectory,
+		Port:                *port,
 		Staging:             *staging,
 		TeamvaultConfigPath: *teamvaultConfigPath,
+		TeamvaultPassword:   *teamvaultPass,
 		TeamvaultURL:        *teamvaultURL,
 		TeamvaultUser:       *teamvaultUser,
-		TeamvaultPassword:   *teamvaultPass,
-		Kubeconfig:          *kubeconfig,
+		TemplateDirectory:   *templateDirectory,
 		Webhook:             *webhook,
-		Port:                *port,
 		Whitelist:           *whitelistPtr,
 	}
 
