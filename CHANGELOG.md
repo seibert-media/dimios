@@ -11,6 +11,7 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 ## 1.1.4
 
 - Fix channel and improve error handling
+- Log warning about apply errors and continue
 
 ## 1.1.3
 
