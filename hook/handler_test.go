@@ -5,11 +5,11 @@
 package hook_test
 
 import (
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -24,9 +24,7 @@ var _ = Describe("Server", func() {
 
 	BeforeEach(func() {
 		manager = &mocks.Manager{}
-		handler = &hook.Server{
-			Manager: manager,
-		}
+		handler = hook.NewHandler(manager)
 	})
 
 	It("return status code 200", func() {
@@ -38,27 +36,13 @@ var _ = Describe("Server", func() {
 		recorder := httptest.NewRecorder()
 		handler.ServeHTTP(recorder, &http.Request{})
 		content, _ := ioutil.ReadAll(recorder.Result().Body)
-		Expect(gbytes.BufferWithBytes(content)).To(gbytes.Say("ok"))
+		Expect(gbytes.BufferWithBytes(content)).To(gbytes.Say("sync triggerd"))
 	})
-
 	It("calls run function", func() {
 		Expect(manager.RunCallCount()).To(Equal(0))
 		handler.ServeHTTP(httptest.NewRecorder(), &http.Request{})
+		time.Sleep(10 * time.Millisecond)
 		Expect(manager.RunCallCount()).To(Equal(1))
-	})
-
-	It("return status code 500 if run fails", func() {
-		manager.RunReturns(errors.New("banana"))
-		recorder := httptest.NewRecorder()
-		handler.ServeHTTP(recorder, &http.Request{})
-		Expect(recorder.Result().StatusCode).To(Equal(http.StatusInternalServerError))
-	})
-	It("writes error message if run fails", func() {
-		manager.RunReturns(errors.New("banana"))
-		recorder := httptest.NewRecorder()
-		handler.ServeHTTP(recorder, &http.Request{})
-		content, _ := ioutil.ReadAll(recorder.Result().Body)
-		Expect(gbytes.BufferWithBytes(content)).To(gbytes.Say("run failed: banana"))
 	})
 })
 

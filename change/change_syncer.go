@@ -10,6 +10,8 @@ import (
 	"github.com/bborbe/run"
 )
 
+const channelSize = 10
+
 //go:generate counterfeiter -o ../mocks/applier.go --fake-name Applier . applier
 type applier interface {
 	Run(context.Context, <-chan Change) error
@@ -23,19 +25,21 @@ type getter interface {
 type Syncer struct {
 	Applier applier
 	Getter  getter
-	Changes chan Change
 }
 
 // Run the sync until one function errors
 func (s *Syncer) Run(ctx context.Context) error {
+
+	changes := make(chan Change, channelSize)
+
 	return run.CancelOnFirstError(ctx,
 		// get changes
 		func(ctx context.Context) error {
-			return s.Getter.Run(ctx, s.Changes)
+			return s.Getter.Run(ctx, changes)
 		},
 		// apply changes
 		func(ctx context.Context) error {
-			return s.Applier.Run(ctx, s.Changes)
+			return s.Applier.Run(ctx, changes)
 		},
 	)
 }
