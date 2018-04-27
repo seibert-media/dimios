@@ -1,6 +1,6 @@
 export TEMP_ORG=//S/M
-export TEMP_NAME=k8s-deploy
-export TEMP_KEY=k8s-deploy
+export TEMP_NAME=dimios
+export TEMP_KEY=dimios
 export TEMP_GIT_ORG=seibert-media
 export TEMP_GIT_HOST=github.com
 export TEMP_DOCKER_HOST=quay.io

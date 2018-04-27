@@ -1,4 +1,4 @@
-// Copyright 2018 The K8s-Deploy Authors. All rights reserved.
+// Copyright 2018 The Dimios Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -15,12 +15,12 @@ import (
 	"github.com/bborbe/teamvault_utils/parser"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	"github.com/seibert-media/k8s-deploy/apply"
-	"github.com/seibert-media/k8s-deploy/finder"
-	"github.com/seibert-media/k8s-deploy/k8s"
-	file_provider "github.com/seibert-media/k8s-deploy/k8s/file"
-	remote_provider "github.com/seibert-media/k8s-deploy/k8s/remote"
-	"github.com/seibert-media/k8s-deploy/sync"
+	"github.com/seibert-media/dimios/apply"
+	"github.com/seibert-media/dimios/finder"
+	"github.com/seibert-media/dimios/k8s"
+	file_provider "github.com/seibert-media/dimios/k8s/file"
+	remote_provider "github.com/seibert-media/dimios/k8s/remote"
+	"github.com/seibert-media/dimios/sync"
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
 	restclient "k8s.io/client-go/rest"

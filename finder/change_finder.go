@@ -1,4 +1,4 @@
-// Copyright 2018 The K8s-Deploy Authors. All rights reserved.
+// Copyright 2018 The Dimios Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -11,8 +11,8 @@ import (
 	"github.com/bborbe/run"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	"github.com/seibert-media/k8s-deploy/change"
-	"github.com/seibert-media/k8s-deploy/k8s"
+	"github.com/seibert-media/dimios/change"
+	"github.com/seibert-media/dimios/k8s"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )

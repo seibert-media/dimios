@@ -1,4 +1,4 @@
-// Copyright 2018 The K8s-Deploy Authors. All rights reserved.
+// Copyright 2018 The Dimios Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -12,7 +12,7 @@ import (
 	teamvault_parser "github.com/bborbe/teamvault_utils/parser"
 	"github.com/ghodss/yaml"
 	"github.com/golang/glog"
-	"github.com/seibert-media/k8s-deploy/k8s"
+	"github.com/seibert-media/dimios/k8s"
 	k8s_unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
 	k8s_scheme "k8s.io/client-go/kubernetes/scheme"

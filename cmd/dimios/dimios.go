@@ -1,4 +1,4 @@
-// Copyright 2018 The K8s-Deploy Authors. All rights reserved.
+// Copyright 2018 The Dimios Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -15,7 +15,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/kolide/kit/version"
-	"github.com/seibert-media/k8s-deploy/manager"
+	"github.com/seibert-media/dimios/manager"
 	"k8s.io/client-go/util/homedir"
 )
 
@@ -37,7 +37,7 @@ func main() {
 	glog.CopyStandardLogTo("info")
 
 	if *versionInfo {
-		fmt.Printf("-- //S/M k8s-deploy --\n")
+		fmt.Printf("-- //S/M Dimios --\n")
 		version.PrintFull()
 	}
 

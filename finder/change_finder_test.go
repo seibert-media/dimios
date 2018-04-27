@@ -1,4 +1,4 @@
-// Copyright 2018 The K8s-Deploy Authors. All rights reserved.
+// Copyright 2018 The Dimios Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	. "github.com/bborbe/assert"
-	"github.com/seibert-media/k8s-deploy/change"
+	"github.com/seibert-media/dimios/change"
 	"k8s.io/api/extensions/v1beta1"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
