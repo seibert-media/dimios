@@ -25,3 +25,7 @@ func NamespacesFromList(namespaces []string) []Namespace {
 func NamespacesFromCommaSeperatedList(list string) []Namespace {
 	return NamespacesFromList(strings.Split(list, ","))
 }
+
+func WhitelistFromCommaSeperatedList(list string) []string {
+	return strings.Split(list, ",")
+}

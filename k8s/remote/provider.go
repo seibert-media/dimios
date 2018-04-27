@@ -17,21 +17,25 @@ import (
 	k8s_schema "k8s.io/apimachinery/pkg/runtime/schema"
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
+	"github.com/seibert-media/dimios/filter"
 )
 
 type provider struct {
 	discoveryClient   *k8s_discovery.DiscoveryClient
 	dynamicClientPool k8s_dynamic.ClientPool
+	whitelist []string
 }
 
 // New remote provider with passed in rest config
 func New(
 	discoveryClient *k8s_discovery.DiscoveryClient,
 	dynamicClientPool k8s_dynamic.ClientPool,
+	whitelist []string,
 ) k8s.Provider {
 	return &provider{
 		discoveryClient:   discoveryClient,
 		dynamicClientPool: dynamicClientPool,
+		whitelist: whitelist,
 	}
 }
 
@@ -90,7 +94,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 				glog.V(4).Infof("extract items failed: %v", err)
 				continue
 			}
-
+			items, _ = filter.Filter(p.whitelist, items)
 			for _, item := range items {
 				glog.V(6).Infof("found api object %s", k8s.ObjectToString(item))
 				is, err := IsManaged(namespace, item)
