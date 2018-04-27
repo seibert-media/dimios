@@ -54,12 +54,6 @@ you need to have a file called `~/.teamvault-sm.json` containing your credential
 **-teamvault-user** _string_
 : Teamvault user (if `teamvault-config` is unset)
 
-**-sentryDsn** _string_
-: Sentry DSN key
-
-**-debug**
-: Enable debug mode
-
 **-v** _value_
 : Log level for glog V logs
 
@@ -67,7 +61,16 @@ you need to have a file called `~/.teamvault-sm.json` containing your credential
 : Log to standard error instead of files
 
 **-version**
-: Show version info (default true)
+: Show version info (default false)
+
+**-webhook**
+: Start as webserver and sync on each call
+
+**-port** _int_
+: Port webserver listens on
+
+**-whitelist** _string_
+: List of kind to manange separated by comma
 
 ## Dependencies
 All dependencies inside this project are being managed by [dep](https://github.com/golang/dep) and are checked in.
@@ -87,3 +90,47 @@ Feedback and contributions are highly welcome. Feel free to file issues or pull 
 
 * [Kolide for providing `kit`](https://github.com/kolide/kit)
 
+## Examples
+
+Simple dryrun
+
+```
+dimios \
+-staging \
+-dir ~/manifests \
+-namespaces download \
+-teamvault-config ~/.teamvault.json \
+-kubeconfig ~/.kube/config \
+-logtostderr \
+-v=1
+```
+
+Manange only Services and Deployment with dryrun
+
+```
+dimios \
+-staging \
+-dir ~/manifests \
+-namespaces download \
+-teamvault-config ~/.teamvault.json \
+-kubeconfig ~/.kube/config \
+-logtostderr \
+-v=1 \
+-whitelist Deployment,Service
+```
+
+
+Start as webserver on port 9999 with dryrun
+
+```
+dimios \
+-staging \
+-dir ~/manifests \
+-namespaces download \
+-teamvault-config ~/.teamvault.json \
+-kubeconfig ~/.kube/config \
+-logtostderr \
+-v=1 \
+-port=9999 \
+-webhook
+```
