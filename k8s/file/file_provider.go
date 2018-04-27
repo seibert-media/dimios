@@ -96,7 +96,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 	if err != nil {
 		return nil, fmt.Errorf("walk path failed: %v", err)
 	}
-	glog.V(1).Infof("read files completed. found %d objects", len(result))
+	glog.V(1).Infof("found in files %d object for namespace %s", len(result), namespace)
 	return result, nil
 }
 

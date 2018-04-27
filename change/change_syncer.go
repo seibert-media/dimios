@@ -6,9 +6,7 @@ package change
 
 import (
 	"context"
-
 	"github.com/bborbe/run"
-	"github.com/golang/glog"
 )
 
 //go:generate counterfeiter -o ../mocks/applier.go --fake-name Applier . applier
@@ -29,9 +27,6 @@ type Syncer struct {
 
 // Run the sync until one function errors
 func (s *Syncer) Run(ctx context.Context) error {
-	glog.V(1).Info("sync changes started")
-	defer glog.V(1).Info("sync changes finished")
-
 	return run.CancelOnFirstError(ctx,
 		// get changes
 		func(ctx context.Context) error {
