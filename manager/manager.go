@@ -36,6 +36,8 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
+const channelSize = 10
+
 // Manager is the main application package
 type Manager struct {
 	Staging             bool
@@ -118,9 +120,13 @@ func (m *Manager) Run(ctx context.Context) error {
 		k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
 		whitelist.ByString(m.Whitelist),
 	)
+	changes := make(chan change.Change, channelSize)
+	defer close(changes)
+
 	syncer := &change.Syncer{
 		Applier: applier,
 		Getter:  getter,
+		Changes: changes,
 	}
 	if m.Webhook {
 		server := &http.Server{
