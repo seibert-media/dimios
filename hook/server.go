@@ -17,12 +17,12 @@ type Server struct {
 }
 
 func (s *Server) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
-	glog.V(1).Info("sync changes for started")
+	glog.V(1).Info("sync changes triggerd")
 	if err := s.Manager.Run(req.Context()); err != nil {
-		glog.V(0).Info("sync changes failed: %v", err)
+		glog.Warningf("sync changes failed: %v", err)
 		http.Error(resp, fmt.Sprintf("run failed: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
-	glog.V(1).Info("sync changes finished")
+	glog.V(1).Info("sync changes completed successful")
 	fmt.Fprintln(resp, "ok")
 }
