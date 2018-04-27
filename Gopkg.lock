@@ -15,6 +15,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/bborbe/flagenv"
+  packages = ["."]
+  revision = "4bf10dbe62f41ce40353a70225a84decfd16d3ac"
+
+[[projects]]
+  branch = "master"
   name = "github.com/bborbe/http"
   packages = [
     "client_builder",
@@ -422,6 +428,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "31603859b4f2d9897d4801013db67411bdeec3a1c901b0d9b213bbf6ce6cd7f4"
+  inputs-digest = "baf84873a254a129e78e3fd38c0e0aa6df1af2c62a298d0c90ab34979f268383"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -6,11 +6,10 @@ package main
 
 import (
 	"context"
-	"flag"
+	flag "github.com/bborbe/flagenv"
 	"fmt"
 	"os"
 	"runtime"
-
 	"github.com/golang/glog"
 	"github.com/kolide/kit/version"
 	"github.com/seibert-media/dimios/manager"
