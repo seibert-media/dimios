@@ -14,7 +14,6 @@ import (
 	"github.com/golang/glog"
 	"github.com/kolide/kit/version"
 	"github.com/seibert-media/dimios/manager"
-	"net/http"
 )
 
 var (
@@ -41,13 +40,6 @@ func main() {
 		fmt.Printf("-- Dimios --\n")
 		version.PrintFull()
 		os.Exit(0)
-	}
-
-	if *webhook {
-		http.HandleFunc("/", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
-
-		}))
-		http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 	}
 
 	m := &manager.Manager{

@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"os/exec"
+	"strconv"
 	"testing"
 	"time"
 
@@ -17,6 +19,8 @@ import (
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 )
+
+const connectionTimeout = 5 * time.Second
 
 var pathToServerBinary string
 var serverSession *gexec.Session
@@ -36,11 +40,29 @@ var _ = AfterSuite(func() {
 	gexec.CleanupBuildArtifacts()
 })
 
+type args map[string]string
+
+func (a args) list() []string {
+	var result []string
+	for k, v := range a {
+		if len(v) == 0 {
+			result = append(result, fmt.Sprintf("-%s", k))
+		} else {
+			result = append(result, fmt.Sprintf("-%s=%s", k, v))
+		}
+	}
+	return result
+}
+
 var _ = Describe("the dimios", func() {
 	var err error
+	validargs := args{}
 	Context("when asked for version", func() {
+		BeforeEach(func() {
+			validargs["version"] = ""
+		})
 		It("prints version string", func() {
-			serverSession, err = gexec.Start(exec.Command(pathToServerBinary, "-version"), GinkgoWriter, GinkgoWriter)
+			serverSession, err = gexec.Start(exec.Command(pathToServerBinary, validargs.list()...), GinkgoWriter, GinkgoWriter)
 			Expect(err).To(BeNil())
 			serverSession.Wait(time.Second)
 			Expect(serverSession.ExitCode()).To(Equal(0))
@@ -54,31 +76,49 @@ unknown - version unknown
 `))
 		})
 	})
-	Context("when called with parameter webhook", func() {
-		args := []string{"-webhook"}
-		It("does respond with statuscode 200", func() {
-			port, err := freePort()
-			Expect(err).To(BeNil())
-			args = append(args, fmt.Sprintf("-port=%d", port))
-			serverSession, err = gexec.Start(exec.Command(pathToServerBinary, args...), GinkgoWriter, GinkgoWriter)
-			Expect(err).To(BeNil())
-			waitUntilPortIsOpen(port, time.Second)
-			resp, err := http.Get(fmt.Sprintf("http://localhost:%d", port))
-			Expect(err).To(BeNil())
-			Expect(resp.StatusCode).To(Equal(http.StatusOK))
+	Context("with valid args", func() {
+		var _ = BeforeEach(func() {
+			validargs["logtostderr"] = ""
+			validargs["v"] = "0"
+			validargs["dir"] = os.TempDir()
+			validargs["namespaces"] = "testns"
+			validargs["teamvault-url"] = "http://teamvault.example.com"
+			validargs["teamvault-user"] = "admin"
+			validargs["teamvault-pass"] = "S3CR3T"
+			validargs["kubeconfig"] = "/tmp/kubeconfig"
 		})
-	})
-	Context("when called without parameter webhook", func() {
-		args := []string{}
-		It("webserver will not be started", func() {
-			port, err := freePort()
-			Expect(err).To(BeNil())
-			args = append(args, fmt.Sprintf("-port=%d", port))
-			serverSession, err = gexec.Start(exec.Command(pathToServerBinary, args...), GinkgoWriter, GinkgoWriter)
-			Expect(err).To(BeNil())
-			waitUntilPortIsOpen(port, time.Second)
-			_, err = http.Get(fmt.Sprintf("http://localhost:%d", port))
-			Expect(err).NotTo(BeNil())
+		Context("with port", func() {
+			var port int
+			BeforeEach(func() {
+				port, err = freePort()
+				Expect(err).To(BeNil())
+				validargs["port"] = strconv.Itoa(port)
+			})
+			Context("when called without parameter webhook", func() {
+				BeforeEach(func() {
+					delete(validargs, "webhook")
+				})
+				It("webserver will not be started", func() {
+					serverSession, err = gexec.Start(exec.Command(pathToServerBinary, validargs.list()...), GinkgoWriter, GinkgoWriter)
+					Expect(err).To(BeNil())
+					waitUntilPortIsOpen(port, 500*time.Millisecond)
+					_, err = http.Get(fmt.Sprintf("http://localhost:%d", port))
+					Expect(err).NotTo(BeNil())
+				})
+			})
+			Context("when called with parameter webhook", func() {
+				BeforeEach(func() {
+					validargs["webhook"] = ""
+				})
+				It("does respond with statuscode 200", func() {
+					serverSession, err = gexec.Start(exec.Command(pathToServerBinary, validargs.list()...), GinkgoWriter, GinkgoWriter)
+					Expect(err).To(BeNil())
+					waitUntilPortIsOpen(port, connectionTimeout)
+					resp, err := http.Get(fmt.Sprintf("http://localhost:%d", port))
+					Expect(err).To(BeNil())
+					Expect(resp.StatusCode).To(Equal(http.StatusOK))
+				})
+			})
 		})
 	})
 })

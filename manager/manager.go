@@ -28,6 +28,9 @@ import (
 	k8s_clientcmd "k8s.io/client-go/tools/clientcmd"
 
 	// Required for using GCP auth
+	"os"
+
+	"github.com/seibert-media/dimios/hook"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
@@ -69,7 +72,7 @@ func (m *Manager) Validate() error {
 	if len(m.Namespaces) == 0 {
 		return fmt.Errorf("namespace missing")
 	}
-	if len(m.Kubeconfig) == 0 {
+	if len(m.Kubeconfig) == 0 && os.Getenv("KUBERNETES_SERVICE_HOST") == "" && os.Getenv("KUBERNETES_SERVICE_PORT") == "" {
 		return fmt.Errorf("kubeconfig missing")
 	}
 	if len(m.TeamvaultURL) == 0 && !m.Staging {
@@ -100,13 +103,6 @@ func (m *Manager) Run(ctx context.Context) error {
 	)
 	remoteProvider := remote_provider.New(discovery, dynamicPool)
 
-	if m.Webhook {
-		http.HandleFunc("/", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
-
-		}))
-		return http.ListenAndServe(fmt.Sprintf(":%d", m.Port), nil)
-	}
-
 	applier := apply.New(
 		m.Staging,
 		discovery,
@@ -117,11 +113,20 @@ func (m *Manager) Run(ctx context.Context) error {
 		remoteProvider,
 		k8s.NamespacesFromCommaSeperatedList(m.Namespaces),
 	)
-	syncer := change.Syncer{
+	syncer := &change.Syncer{
 		Applier: applier,
 		Getter:  getter,
 	}
 
+	if m.Webhook {
+		server := &http.Server{
+			Addr: fmt.Sprintf(":%d", m.Port),
+			Handler: &hook.Server{
+				Manager: syncer,
+			},
+		}
+		return server.ListenAndServe()
+	}
 	return syncer.Run(ctx)
 }
 
