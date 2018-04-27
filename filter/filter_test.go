@@ -6,6 +6,7 @@ import (
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/api/apps/v1"
+	"k8s.io/api/extensions/v1beta1"
 )
 
 var _ = Describe("Filter", func() {
@@ -17,7 +18,13 @@ var _ = Describe("Filter", func() {
 				Kind:       "Deployment",
 				},
 		}
-		K8sobjects = []k8s_runtime.Object{&TestDeployment}
+		TestIngress = v1beta1.Ingress{
+			TypeMeta: k8s_metav1.TypeMeta{
+				APIVersion: "extensions/v1beta1",
+				Kind:       "Ingress",
+			},
+		}
+		K8sobjects = []k8s_runtime.Object{&TestDeployment, &TestIngress}
 	)
 
 	Describe("Whitelistfilter", func() {
@@ -30,6 +37,11 @@ var _ = Describe("Filter", func() {
 			Whitelist = append(Whitelist, "Deployment")
 			var k8sdeployobjects, _ = Filter(Whitelist, K8sobjects)
 			Expect(len(k8sdeployobjects)).To(Equal(1))
+		})
+		It("returns correct count of k8s objects with whitelist deployment and ingress", func() {
+			Whitelist = append(Whitelist, "Deployment", "Ingress")
+			var k8sdeployobjects, _ = Filter(Whitelist, K8sobjects)
+			Expect(len(k8sdeployobjects)).To(Equal(2))
 		})
 	})
 })
