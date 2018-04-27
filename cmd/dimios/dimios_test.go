@@ -86,7 +86,7 @@ unknown - version unknown
 			validargs["teamvault-url"] = "http://teamvault.example.com"
 			validargs["teamvault-user"] = "admin"
 			validargs["teamvault-pass"] = "S3CR3T"
-			validargs["kubeconfig"] = "/Users/bborbe/.kube/config"
+			validargs["kubeconfig"] = "~/.kube/config"
 		})
 		Context("with port", func() {
 			var port int

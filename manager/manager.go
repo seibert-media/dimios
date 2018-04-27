@@ -32,6 +32,7 @@ import (
 
 	"github.com/seibert-media/dimios/hook"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"github.com/bborbe/io/util"
 )
 
 // Manager is the main application package
@@ -135,6 +136,10 @@ func (m *Manager) Run(ctx context.Context) error {
 func createConfig(kubeconfig string) (*k8s_rest.Config, error) {
 	if len(kubeconfig) > 0 {
 		glog.V(4).Infof("create kube config from flags")
+		kubeconfig, err := util.NormalizePath(kubeconfig)
+		if err != nil {
+			return nil, errors.Wrap(err, "normalize path failed")
+		}
 		return k8s_clientcmd.BuildConfigFromFlags("", kubeconfig)
 	}
 	glog.V(4).Infof("create in cluster kube config")
