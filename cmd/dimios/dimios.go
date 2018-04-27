@@ -14,6 +14,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/kolide/kit/version"
 	"github.com/seibert-media/dimios/manager"
+	"net/http"
 )
 
 var (
@@ -26,6 +27,8 @@ var (
 	stagingPtr             = flag.Bool("staging", false, "staging status")
 	versionInfo            = flag.Bool("version", false, "show version info")
 	kubeconfig             = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	port                   = flag.Int("port", 8080, "port listen on if webhook is activated")
+	webhook                = flag.Bool("webhook", false, "activate run as http server")
 )
 
 func main() {
@@ -39,6 +42,11 @@ func main() {
 		version.PrintFull()
 		os.Exit(0)
 	}
+
+	http.HandleFunc("/", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+
+	}))
+	http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 
 	m := &manager.Manager{
 		Namespaces:          *namespacesPtr,
