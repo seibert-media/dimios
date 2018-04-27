@@ -44,6 +44,7 @@ type Manager struct {
 	TeamvaultPassword   string
 	TeamvaultConfigPath string
 	Namespaces          string
+	Whitelist           string
 	Kubeconfig          string
 	Webhook             bool
 	Port                int
@@ -102,7 +103,7 @@ func (m *Manager) Run(ctx context.Context) error {
 		file_provider.TemplateDirectory(m.TemplateDirectory),
 		m.createTeamvaultConfigParser(),
 	)
-	remoteProvider := remote_provider.New(discovery, dynamicPool)
+	remoteProvider := remote_provider.New(discovery, dynamicPool, k8s.WhitelistFromCommaSeperatedList(m.Whitelist))
 
 	applier := apply.New(
 		m.Staging,

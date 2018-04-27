@@ -9,6 +9,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	"github.com/seibert-media/dimios/filter"
 	"github.com/seibert-media/dimios/k8s"
 	k8s_meta "k8s.io/apimachinery/pkg/api/meta"
 	k8s_metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,16 +23,19 @@ import (
 type provider struct {
 	discoveryClient   *k8s_discovery.DiscoveryClient
 	dynamicClientPool k8s_dynamic.ClientPool
+	whitelist         []string
 }
 
 // New remote provider with passed in rest config
 func New(
 	discoveryClient *k8s_discovery.DiscoveryClient,
 	dynamicClientPool k8s_dynamic.ClientPool,
+	whitelist []string,
 ) k8s.Provider {
 	return &provider{
 		discoveryClient:   discoveryClient,
 		dynamicClientPool: dynamicClientPool,
+		whitelist:         whitelist,
 	}
 }
 
@@ -90,7 +94,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 				glog.V(4).Infof("extract items failed: %v", err)
 				continue
 			}
-
+			items = filter.Filter(p.whitelist, items)
 			for _, item := range items {
 				glog.V(6).Infof("found api object %s", k8s.ObjectToString(item))
 				is, err := IsManaged(namespace, item)

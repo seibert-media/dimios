@@ -28,6 +28,7 @@ var (
 	kubeconfig          = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	port                = flag.Int("port", 8080, "port listen on if webhook is activated")
 	webhook             = flag.Bool("webhook", false, "activate run as http server")
+	whitelistPtr           = flag.String("whitelist", "", "list of objecttypes separated by comma")
 )
 
 func main() {
@@ -53,6 +54,7 @@ func main() {
 		Kubeconfig:          *kubeconfig,
 		Webhook:             *webhook,
 		Port:                *port,
+		Whitelist:           *whitelistPtr,
 	}
 
 	if err := m.ReadTeamvaultConfig(); err != nil {
