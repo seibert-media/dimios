@@ -44,14 +44,14 @@ func main() {
 
 	glog.V(1).Infof("parameter Kubeconfig: %s", *kubeconfig)
 	glog.V(1).Infof("parameter Namespaces: %s", *namespaces)
-	glog.V(1).Infof("parameter Port: %s", *port)
-	glog.V(1).Infof("parameter Staging: %s", *staging)
+	glog.V(1).Infof("parameter Port: %d", *port)
+	glog.V(1).Infof("parameter Staging: %v", *staging)
 	glog.V(1).Infof("parameter TeamvaultConfigPath: %s", *teamvaultConfigPath)
-	glog.V(1).Infof("parameter TeamvaultPassword: length=%d", len(*teamvaultPass))
+	glog.V(1).Infof("parameter TeamvaultPassword length: %d", len(*teamvaultPass))
 	glog.V(1).Infof("parameter TeamvaultURL: %s", *teamvaultURL)
 	glog.V(1).Infof("parameter TeamvaultUser: %s", *teamvaultUser)
 	glog.V(1).Infof("parameter TemplateDirectory: %s", *templateDirectory)
-	glog.V(1).Infof("parameter Webhook: %s", *webhook)
+	glog.V(1).Infof("parameter Webhook: %v", *webhook)
 	glog.V(1).Infof("parameter Whitelist: %s", *whitelistPtr)
 
 	m := &manager.Manager{
