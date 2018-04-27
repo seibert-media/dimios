@@ -19,12 +19,9 @@ import (
 	k8s_scheme "k8s.io/client-go/kubernetes/scheme"
 )
 
-type walkFuncBuilder func([]k8s_runtime.Object) filepath.WalkFunc
-
 type provider struct {
 	templateDirectory TemplateDirectory
 	parser            teamvault_parser.Parser
-	walkFunc          walkFuncBuilder
 }
 
 // New file provider for directory using Teamvault parser
@@ -36,7 +33,6 @@ func New(
 		templateDirectory: templateDirectory,
 		parser:            parser,
 	}
-	p.walkFunc = p.walkFuncBuilder
 	return p
 }
 
@@ -53,17 +49,7 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 	}
 
 	var result []k8s_runtime.Object
-	if err = filepath.Walk(dir.String(), p.walkFunc(result)); err != nil {
-		return nil, fmt.Errorf("walk path failed: %v", err)
-	}
-
-	glog.V(1).Infof("read files completed. found %d objects", len(result))
-	return result, nil
-
-}
-
-func (p *provider) walkFuncBuilder(result []k8s_runtime.Object) filepath.WalkFunc {
-	return func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(dir.String(), func(path string, info os.FileInfo, err error) error {
 		glog.V(4).Infof("handle path: %s", path)
 
 		if info.IsDir() {
@@ -106,7 +92,12 @@ func (p *provider) walkFuncBuilder(result []k8s_runtime.Object) filepath.WalkFun
 		result = append(result, obj)
 		glog.V(4).Infof("add object to result")
 		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("walk path failed: %v", err)
 	}
+	glog.V(1).Infof("read files completed. found %d objects", len(result))
+	return result, nil
 }
 
 func kind(content []byte) (k8s_runtime.Object, error) {
