@@ -1,7 +1,7 @@
 package connector
 
 import (
-	"github.com/bborbe/teamvault_utils/model"
+	"github.com/bborbe/teamvault-utils/model"
 )
 
 type Connector interface {

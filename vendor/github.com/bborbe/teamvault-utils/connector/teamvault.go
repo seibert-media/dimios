@@ -6,7 +6,7 @@ import (
 
 	http_header "github.com/bborbe/http/header"
 	"github.com/bborbe/http/rest"
-	"github.com/bborbe/teamvault_utils/model"
+	"github.com/bborbe/teamvault-utils/model"
 )
 
 type teamvaultPasswordProvider struct {

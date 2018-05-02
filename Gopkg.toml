@@ -4,6 +4,10 @@
   branch = "master"
 
 [[constraint]]
+  name = "github.com/bborbe/teamvault-utils"
+  branch = "master"
+
+[[constraint]]
   name = "k8s.io/api"
   version = "kubernetes-1.9.0"
 
