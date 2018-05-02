@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"os"
 	"text/template"
-
 	"github.com/foomo/htpasswd"
 
 	"github.com/bborbe/teamvault_utils/connector"

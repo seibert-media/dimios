@@ -1,10 +1,11 @@
 package model
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
 	"os"
+
+	"encoding/base64"
 
 	io_util "github.com/bborbe/io/util"
 	"github.com/golang/glog"
@@ -108,10 +109,6 @@ func (t TeamvaultConfigPath) Exists() bool {
 	}
 	if fileInfo.Size() == 0 {
 		glog.V(2).Infof("file %v empty => false", t)
-		return false
-	}
-	if fileInfo.IsDir() {
-		glog.V(2).Infof("file %v is dir => false", t)
 		return false
 	}
 	glog.V(2).Infof("file %v exists and not empty => true", t)
