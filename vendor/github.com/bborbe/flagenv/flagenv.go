@@ -78,6 +78,7 @@ func Parse() {
 	flag.Parse()
 }
 
+// PrintDefaults wraps flag.PrintDefaults
 func PrintDefaults() {
 	flag.CommandLine.PrintDefaults()
 }

@@ -9,11 +9,14 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-
+	"os"
+	"github.com/bborbe/io/util"
+	"github.com/seibert-media/dimios/hook"
+	"github.com/seibert-media/dimios/whitelist"
 	"github.com/bborbe/http/client_builder"
-	"github.com/bborbe/teamvault_utils/connector"
-	"github.com/bborbe/teamvault_utils/model"
-	"github.com/bborbe/teamvault_utils/parser"
+	"github.com/bborbe/teamvault-utils/connector"
+	"github.com/bborbe/teamvault-utils/model"
+	"github.com/bborbe/teamvault-utils/parser"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"github.com/seibert-media/dimios/apply"
@@ -28,11 +31,6 @@ import (
 	k8s_clientcmd "k8s.io/client-go/tools/clientcmd"
 
 	// Required for using GCP auth
-	"os"
-
-	"github.com/bborbe/io/util"
-	"github.com/seibert-media/dimios/hook"
-	"github.com/seibert-media/dimios/whitelist"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
