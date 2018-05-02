@@ -61,20 +61,20 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 			return fmt.Errorf("read file %s failed: %v", path, err)
 		}
 
-		content, err = p.parser.Parse(content)
-		if err != nil {
-			return fmt.Errorf("parse content of file %s failed: %v", path, err)
-		}
-		if glog.V(6) {
-			glog.Infof("yaml %s", content)
-		}
-
 		content, err = yaml.YAMLToJSON(content)
 		if err != nil {
 			return fmt.Errorf("convert yaml to json for file %s failed: %v", path, err)
 		}
 		if glog.V(6) {
 			glog.Infof("json %s", content)
+		}
+
+		content, err = p.parser.Parse(content)
+		if err != nil {
+			return fmt.Errorf("parse content of file %s failed: %v", path, err)
+		}
+		if glog.V(6) {
+			glog.Infof("yaml %s", content)
 		}
 
 		obj, err := kind(content)
