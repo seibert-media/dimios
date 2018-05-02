@@ -56,34 +56,46 @@ func (p *provider) GetObjects(namespace k8s.Namespace) ([]k8s_runtime.Object, er
 			glog.V(3).Infof("skip directory: %s", path)
 			return nil
 		}
-		content, err := ioutil.ReadFile(path)
+		yamlTemplate, err := ioutil.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("read file %s failed: %v", path, err)
 		}
-
-		content, err = yaml.YAMLToJSON(content)
-		if err != nil {
-			return fmt.Errorf("convert yaml to json for file %s failed: %v", path, err)
-		}
 		if glog.V(6) {
-			glog.Infof("json %s", content)
+			glog.Infof("yaml: %s", yamlTemplate)
 		}
 
-		content, err = p.parser.Parse(content)
+		yamlContent, err := p.parser.Parse(yamlTemplate)
 		if err != nil {
+			if glog.V(4) {
+				glog.Infof("content: %s", string(yamlTemplate))
+			}
 			return fmt.Errorf("parse content of file %s failed: %v", path, err)
 		}
 		if glog.V(6) {
-			glog.Infof("yaml %s", content)
+			glog.Infof("parsed: %s", yamlContent)
 		}
 
-		obj, err := kind(content)
+		jsonContent, err := yaml.YAMLToJSON(yamlContent)
 		if err != nil {
+			if glog.V(4) {
+				glog.Infof("content: %s", string(yamlContent))
+			}
+			return fmt.Errorf("convert yaml to json for file %s failed: %v", path, err)
+		}
+		if glog.V(6) {
+			glog.Infof("json: %s", jsonContent)
+		}
+
+		obj, err := kind(jsonContent)
+		if err != nil {
+			if glog.V(4) {
+				glog.Infof("content: %s", string(jsonContent))
+			}
 			return fmt.Errorf("create object by content for file %s failed: %v", path, err)
 		}
 
 		glog.V(4).Infof("found kind %v", obj.GetObjectKind())
-		if obj, _, err = k8s_unstructured.UnstructuredJSONScheme.Decode(content, nil, obj); err != nil {
+		if obj, _, err = k8s_unstructured.UnstructuredJSONScheme.Decode(jsonContent, nil, obj); err != nil {
 			return fmt.Errorf("unmarshal to object for file %s failed: %v", path, err)
 		}
 
