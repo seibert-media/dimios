@@ -20,8 +20,6 @@ import (
 	"github.com/onsi/gomega/gexec"
 )
 
-const connectionTimeout = 5 * time.Second
-
 var pathToServerBinary string
 var serverSession *gexec.Session
 
@@ -80,7 +78,7 @@ unknown - version unknown
 		var _ = BeforeEach(func() {
 			delete(validargs, "version")
 			validargs["logtostderr"] = ""
-			validargs["v"] = "2"
+			validargs["v"] = "0"
 			validargs["dir"] = os.TempDir()
 			validargs["namespaces"] = "testns"
 			validargs["teamvault-url"] = "http://teamvault.example.com"
@@ -115,7 +113,7 @@ unknown - version unknown
 					fmt.Printf("%v", validargs)
 					serverSession, err = gexec.Start(exec.Command(pathToServerBinary, validargs.list()...), GinkgoWriter, GinkgoWriter)
 					Expect(err).To(BeNil())
-					waitUntilPortIsOpen(port, connectionTimeout)
+					waitUntilPortIsOpen(port, 10*time.Second)
 					resp, err := http.Get(fmt.Sprintf("http://localhost:%d", port))
 					Expect(err).To(BeNil())
 					Expect(resp.StatusCode).To(BeNumerically(">", 0))

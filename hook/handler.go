@@ -27,9 +27,6 @@ func NewHandler(manager manager) *handler {
 
 func (h *handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	glog.V(1).Info("sync changes triggerd")
-
-	glog.V(1).Infof("channel %d", len(h.running))
-
 	select {
 	case h.running <- true:
 		go func() {
