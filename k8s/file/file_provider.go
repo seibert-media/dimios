@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
-	teamvault_parser "github.com/bborbe/teamvault_utils/parser"
+	teamvault_parser "github.com/bborbe/teamvault-utils/parser"
 	"github.com/ghodss/yaml"
 	"github.com/golang/glog"
 	"github.com/seibert-media/dimios/k8s"
