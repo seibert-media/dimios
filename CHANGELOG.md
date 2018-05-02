@@ -10,7 +10,7 @@ Please choose versions by [Semantic Versioning](http://semver.org/).
 
 ## 1.1.6
 
-- Fix multiline teamvault expressions 
+- Log Yaml and Json content if parse failure 
 
 ## 1.1.5
 
