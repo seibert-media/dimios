@@ -35,7 +35,6 @@ func (h *handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 				glog.Warningf("sync changes failed: %v", err)
 			}
 			glog.V(1).Info("sync changes completed successful")
-
 		}()
 		fmt.Fprintln(resp, "sync triggerd")
 	default:
