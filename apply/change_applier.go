@@ -6,8 +6,10 @@ package apply
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
+	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"github.com/seibert-media/dimios/change"
@@ -15,6 +17,7 @@ import (
 	k8s_unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8s_runtime "k8s.io/apimachinery/pkg/runtime"
 	k8s_schema "k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	k8s_discovery "k8s.io/client-go/discovery"
 	k8s_dynamic "k8s.io/client-go/dynamic"
 )
@@ -91,7 +94,7 @@ func (c *Applier) apply(ctx context.Context, change change.Change) error {
 		return nil
 	}
 	var result *k8s_unstructured.Unstructured
-	if _, err := resource.Get(obj.GetName(), k8s_metav1.GetOptions{}); err != nil {
+	if original, err := resource.Get(obj.GetName(), k8s_metav1.GetOptions{}); err != nil {
 		glog.V(3).Infoln("object not present, creating")
 		result, err = resource.Create(obj)
 		if err != nil {
@@ -99,9 +102,27 @@ func (c *Applier) apply(ctx context.Context, change change.Change) error {
 		}
 	} else {
 		glog.V(3).Infoln("object already present, updating")
-		result, err = resource.Update(obj)
+
+		originalBytes, err := json.Marshal(original.Object)
 		if err != nil {
-			return errors.Wrap(err, "update object failed")
+			return errors.Wrap(err, "unable to marshal original")
+		}
+
+		updatedBytes, err := json.Marshal(obj.Object)
+		if err != nil {
+			return errors.Wrap(err, "unable to marshal original")
+		}
+
+		patchBytes, err := jsonpatch.CreateMergePatch(originalBytes, updatedBytes)
+		if err != nil {
+			return errors.Wrap(err, "unable to decode patch")
+		}
+		fmt.Println("ORIG: ", string(originalBytes))
+		fmt.Println("NEW: ", string(updatedBytes))
+		fmt.Println("PATCH: ", string(patchBytes))
+		result, err = resource.Patch(original.GetName(), types.MergePatchType, patchBytes)
+		if err != nil {
+			return errors.Wrap(err, "unable to patch object")
 		}
 	}
 

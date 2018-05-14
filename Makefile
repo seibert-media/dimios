@@ -47,7 +47,7 @@ deps:
 	go get -u github.com/golang/lint/golint
 	go get -u github.com/kisielk/errcheck
 	go get -u github.com/golang/dep/cmd/dep
-	go get -u github.com/bborbe/docker_utils/bin/docker_remote_tag_exists
+	go get -u github.com/bborbe/docker-utils/cmd/docker-remote-tag-exists
 	go get -u github.com/haya14busa/goverage
 	go get -u github.com/schrej/godacov
 	go get -u github.com/maxbrunsfeld/counterfeiter
@@ -90,7 +90,7 @@ build:
 
 # run specified tool from code
 dev:
-	@go run -ldflags $(KIT_VERSION) cmd/$(NAME)/*.go \
+	@go run -ldflags $(KIT_VERSION) cmd/$(NAME)/$(NAME).go \
 	-dir=$(MANIFEST_DIR) \
 	-namespaces=$(NAMESPACES) \
 	-teamvault-config=~/.teamvault-sm.json \
@@ -115,7 +115,7 @@ version:
 
 # install docker tag check
 docker_remote_tag_exists:
-	@go get github.com/bborbe/docker_utils/bin/docker_remote_tag_exists
+	@go get github.com/bborbe/docker-utils/cmd/docker-remote-tag-exists
 
 # trigger only if docker tag not present
 trigger: docker_remote_tag_exists

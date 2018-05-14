@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	kubeconfig          = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	kubeconfig          = flag.String("kubeconfig", "~/.kube/config", "absolute path to the kubeconfig file")
 	namespaces          = flag.String("namespaces", "", "list of kubernetes namespace separated by comma")
 	port                = flag.Int("port", 8080, "port listen on if webhook is activated")
 	staging             = flag.Bool("staging", false, "staging status")
