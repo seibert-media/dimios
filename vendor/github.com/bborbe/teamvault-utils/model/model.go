@@ -6,6 +6,9 @@ import (
 	"io/ioutil"
 	"os"
 
+	"fmt"
+	"strings"
+
 	io_util "github.com/bborbe/io/util"
 	"github.com/golang/glog"
 )
@@ -139,4 +142,18 @@ func ParseTeamvaultConfig(content []byte) (*TeamvaultConfig, error) {
 		return nil, err
 	}
 	return config, nil
+}
+
+type TeamvaultApiUrl string
+
+func (t TeamvaultApiUrl) String() string {
+	return string(t)
+}
+
+func (t TeamvaultApiUrl) Key() (TeamvaultKey, error) {
+	parts := strings.Split(t.String(), "/")
+	if len(parts) < 3 {
+		return "", fmt.Errorf("parse key form api-url failed")
+	}
+	return TeamvaultKey(parts[len(parts)-2]), nil
 }

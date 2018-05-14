@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"net/url"
+
 	http_header "github.com/bborbe/http/header"
 	"github.com/bborbe/http/rest"
 	"github.com/bborbe/teamvault-utils/model"
@@ -93,4 +95,26 @@ func (t *teamvaultPasswordProvider) createHeader() http.Header {
 	header.Add("Authorization", fmt.Sprintf("Basic %s", http_header.CreateAuthorizationToken(t.user.String(), t.pass.String())))
 	header.Add("Content-Type", "application/json")
 	return header
+}
+
+func (t *teamvaultPasswordProvider) Search(search string) ([]model.TeamvaultKey, error) {
+	var response struct {
+		Results []struct {
+			ApiUrl model.TeamvaultApiUrl `json:"api_url"`
+		} `json:"results"`
+	}
+	values := url.Values{}
+	values.Add("search", search)
+	if err := t.rest.Call(fmt.Sprintf("%s/api/secrets/", t.url.String()), values, http.MethodGet, nil, &response, t.createHeader()); err != nil {
+		return nil, err
+	}
+	var result []model.TeamvaultKey
+	for _, re := range response.Results {
+		key, err := re.ApiUrl.Key()
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, key)
+	}
+	return result, nil
 }

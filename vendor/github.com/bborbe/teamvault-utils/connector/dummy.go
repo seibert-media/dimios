@@ -37,3 +37,7 @@ func (t *dummyPasswordProvider) File(key model.TeamvaultKey) (model.TeamvaultFil
 	result := base64.URLEncoding.EncodeToString([]byte(key + "-file"))
 	return model.TeamvaultFile(result), nil
 }
+
+func (t *dummyPasswordProvider) Search(search string) ([]model.TeamvaultKey, error) {
+	return nil, nil
+}

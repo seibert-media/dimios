@@ -9,4 +9,5 @@ type Connector interface {
 	User(key model.TeamvaultKey) (model.TeamvaultUser, error)
 	Url(key model.TeamvaultKey) (model.TeamvaultUrl, error)
 	File(key model.TeamvaultKey) (model.TeamvaultFile, error)
+	Search(name string) ([]model.TeamvaultKey, error)
 }
